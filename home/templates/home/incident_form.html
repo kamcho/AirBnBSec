@@ -1,0 +1,510 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{% if form.instance.pk %}Edit Incident{% else %}Report New Incident{% endif %} - AirBnBSec{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Custom styles -->
+<style>
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #f8fafc;
+    }
+    
+    /* Form container */
+    .form-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+    
+    .form-title {
+        color: #f8fafc;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .form-title::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        border-radius: 3px;
+    }
+    
+    .form-description {
+        color: #94a3b8;
+        font-size: 1.05rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    /* Form groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #e2e8f0;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #1e293b;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .form-control:focus {
+        border-color: #818cf8;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+    }
+    
+    /* Form rows and columns */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        text-align: center;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    
+    .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+        border: 1px solid #4f46e5;
+    }
+    
+    .btn-primary:hover {
+        background-color: #4338ca;
+        border-color: #4338ca;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #4f46e5;
+        color: #4f46e5;
+    }
+    
+    .btn-outline:hover {
+        background-color: rgba(79, 70, 229, 0.1);
+    }
+    
+    /* Form actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Dark theme form fields */
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+        color: #e2e8f0 !important;
+        background-color: #1e293b !important;
+        border: 1px solid #475569 !important;
+        padding: 0.75rem 1rem !important;
+        border-radius: 0.5rem !important;
+        width: 100% !important;
+        margin-top: 0.25rem !important;
+        display: block !important;
+    }
+
+    /* Focus states */
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #818cf8 !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25) !important;
+        background-color: #1e293b !important;
+    }
+
+    /* Placeholder text color */
+    ::placeholder {
+        color: #94a3b8 !important;
+        opacity: 1 !important;
+    }
+
+    /* For date and time inputs */
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(1.5);
+    }
+
+    /* For select dropdown arrow */
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.7em top 50% !important;
+        background-size: 1.5em auto !important;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+    
+    /* File upload styling */
+    .custom-file-upload {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        border: 2px dashed #475569;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        text-align: center;
+    }
+    
+    .custom-file-upload:hover {
+        border-color: #6366f1;
+        background-color: rgba(99, 102, 241, 0.05);
+    }
+    
+    .custom-file-upload i {
+        font-size: 2rem;
+        color: #818cf8;
+        margin-bottom: 0.5rem;
+    }
+    
+    .file-info {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center w-full py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 to-slate-800">
+    <div class="form-container">
+        <div class="form-header">
+            <h1 class="form-title">
+                {% if form.instance.pk %}Edit Incident{% else %}Report New Incident{% endif %}
+            </h1>
+            <p class="form-description">
+                Please provide all the necessary details about the incident. All fields are required unless marked as optional.
+            </p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Title -->
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="form-label">
+                    <i class="bi bi-card-heading mr-2"></i>{{ form.title.label }}
+                </label>
+                {{ form.title|add_class:"form-control" }}
+                {% if form.title.help_text %}
+                    <small class="text-gray-400 text-sm mt-1 block">{{ form.title.help_text }}</small>
+                {% endif %}
+                {{ form.title.errors }}
+            </div>
+            
+            <div class="form-row">
+                <!-- Incident Type -->
+                <div class="form-group">
+                    <label for="{{ form.incident_type.id_for_label }}" class="form-label">
+                        <i class="bi bi-tag-fill mr-2"></i>{{ form.incident_type.label }}
+                    </label>
+                    {{ form.incident_type|add_class:"form-control" }}
+                    {% if form.incident_type.help_text %}
+                        <small class="text-gray-400 text-sm mt-1 block">{{ form.incident_type.help_text }}</small>
+                    {% endif %}
+                    {{ form.incident_type.errors }}
+                </div>
+                
+                <!-- Severity -->
+                <div class="form-group">
+                    <label for="{{ form.severity.id_for_label }}" class="form-label">
+                        <i class="bi bi-exclamation-triangle-fill mr-2"></i>{{ form.severity.label }}
+                    </label>
+                    {{ form.severity|add_class:"form-control" }}
+                    {{ form.severity.errors }}
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                    <i class="bi bi-card-text mr-2"></i>{{ form.description.label }}
+                </label>
+                {{ form.description|add_class:"form-control"|attr:"rows:4" }}
+                {% if form.description.help_text %}
+                    <small class="text-gray-400 text-sm mt-1 block">{{ form.description.help_text }}</small>
+                {% endif %}
+                {{ form.description.errors }}
+            </div>
+            
+            <div class="form-row">
+                <!-- Incident Date -->
+                <div class="form-group">
+                    <label for="{{ form.incident_date.id_for_label }}" class="form-label">
+                        <i class="bi bi-calendar-event mr-2"></i>{{ form.incident_date.label }}
+                    </label>
+                    {{ form.incident_date|add_class:"form-control"|attr:"type:datetime-local" }}
+                    {{ form.incident_date.errors }}
+                </div>
+                
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                        <i class="bi bi-list-check mr-2"></i>{{ form.status.label }}
+                    </label>
+                    {{ form.status|add_class:"form-control" }}
+                    {{ form.status.errors }}
+                </div>
+            </div>
+            
+            <!-- Guest Information -->
+            <div class="form-row">
+                <!-- Guest Name -->
+                <div class="form-group">
+                    <label for="{{ form.guest_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person-fill mr-2"></i>{{ form.guest_name.label }}
+                    </label>
+                    {{ form.guest_name|add_class:"form-control" }}
+                    {{ form.guest_name.errors }}
+                </div>
+                
+                <!-- Guest Email -->
+                <div class="form-group">
+                    <label for="{{ form.guest_email.id_for_label }}" class="form-label">
+                        <i class="bi bi-envelope-fill mr-2"></i>{{ form.guest_email.label }}
+                    </label>
+                    {{ form.guest_email|add_class:"form-control"|attr:"type:email" }}
+                    {{ form.guest_email.errors }}
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <!-- Guest Phone -->
+                <div class="form-group">
+                    <label for="{{ form.guest_phone.id_for_label }}" class="form-label">
+                        <i class="bi bi-telephone-fill mr-2"></i>{{ form.guest_phone.label }}
+                    </label>
+                    {{ form.guest_phone|add_class:"form-control"|attr:"type:tel" }}
+                    {{ form.guest_phone.errors }}
+                </div>
+                
+                <!-- Estimated Damage Cost -->
+                <div class="form-group">
+                    <label for="{{ form.estimated_damage_cost.id_for_label }}" class="form-label">
+                        <i class="bi bi-currency-dollar mr-2"></i>{{ form.estimated_damage_cost.label }}
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            $
+                        </span>
+                        {{ form.estimated_damage_cost|add_class:"pl-8 form-control"|attr:"type:number"|attr:"step:0.01"|attr:"min:0" }}
+                    </div>
+                    {{ form.estimated_damage_cost.errors }}
+                </div>
+            </div>
+            
+            <!-- Location -->
+            <div class="form-group">
+                <label for="{{ form.location.id_for_label }}" class="form-label">
+                    <i class="bi bi-geo-alt-fill mr-2"></i>{{ form.location.label }}
+                </label>
+                {{ form.location|add_class:"form-control" }}
+                {{ form.location.errors }}
+            </div>
+            
+            <!-- Location Description -->
+            <div class="form-group">
+                <label for="{{ form.location_description.id_for_label }}" class="form-label">
+                    <i class="bi bi-geo-alt mr-2"></i>{{ form.location_description.label }}
+                </label>
+                {{ form.location_description|add_class:"form-control"|attr:"rows:3" }}
+                {% if form.location_description.help_text %}
+                    <small class="text-gray-400 text-sm mt-1 block">{{ form.location_description.help_text }}</small>
+                {% endif %}
+                {{ form.location_description.errors }}
+            </div>
+            
+            <!-- Police Report Number -->
+            <div class="form-group">
+                <label for="{{ form.police_report_number.id_for_label }}" class="form-label">
+                    <i class="bi bi-file-earmark-text mr-2"></i>{{ form.police_report_number.label }} (Optional)
+                </label>
+                {{ form.police_report_number|add_class:"form-control" }}
+                {{ form.police_report_number.errors }}
+            </div>
+            
+            <!-- Resolution Notes -->
+            <div class="form-group">
+                <label for="{{ form.resolution_notes.id_for_label }}" class="form-label">
+                    <i class="bi bi-journal-text mr-2"></i>{{ form.resolution_notes.label }} (Optional)
+                </label>
+                {{ form.resolution_notes|add_class:"form-control"|attr:"rows:4" }}
+                {% if form.resolution_notes.help_text %}
+                    <small class="text-gray-400 text-sm mt-1 block">{{ form.resolution_notes.help_text }}</small>
+                {% endif %}
+                {{ form.resolution_notes.errors }}
+            </div>
+            
+            <!-- Evidence Upload -->
+            <div class="form-group">
+                <label for="{{ form.evidence.id_for_label }}" class="form-label">
+                    <i class="bi bi-file-earmark-image mr-2"></i>{{ form.evidence.label }} (Optional)
+                </label>
+                <label for="{{ form.evidence.id_for_label }}" class="custom-file-upload">
+                    <i class="bi bi-cloud-upload"></i>
+                    <span>Click to upload or drag and drop</span>
+                    <div id="file-name" class="file-info">PNG, JPG, PDF up to 10MB</div>
+                    {{ form.evidence|add_class:"hidden"|attr:"onchange:updateFileName(this)" }}
+                </label>
+                {% if form.evidence.help_text %}
+                    <small class="text-gray-400 text-sm mt-1 block">{{ form.evidence.help_text }}</small>
+                {% endif %}
+                {{ form.evidence.errors }}
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'home:incident_list' %}" class="btn btn-outline">
+                    <i class="bi bi-x-lg mr-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save-fill mr-2"></i>Save Incident
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+// Update file name display when a file is selected
+function updateFileName(input) {
+    const fileName = input.files[0] ? input.files[0].name : 'No file selected';
+    document.getElementById('file-name').textContent = fileName;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix for datetime-local input
+    const dateTimeInput = document.querySelector('input[type="datetime-local"]');
+    
+    if (dateTimeInput) {
+        // Format existing value if it exists
+        if (dateTimeInput.value) {
+            const date = new Date(dateTimeInput.value);
+            if (!isNaN(date.getTime())) {
+                // Format as YYYY-MM-DDThh:mm
+                const localDateTime = date.toISOString().slice(0, 16);
+                dateTimeInput.value = localDateTime;
+            }
+        }
+        
+        // Add event listener to format the date on change
+        dateTimeInput.addEventListener('change', function() {
+            const date = new Date(this.value);
+            if (date instanceof Date && !isNaN(date)) {
+                this.value = date.toISOString().slice(0, 16);
+            }
+        });
+    }
+    
+    // Initialize tooltips if needed
+    const tooltipElements = document.querySelectorAll('[data-tooltip]');
+    tooltipElements.forEach(el => {
+        // Add tooltip initialization here if needed
+    });
+});
+</script>
+{% endblock %}

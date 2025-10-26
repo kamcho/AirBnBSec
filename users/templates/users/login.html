@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - AICitizen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+  {% load static %}
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen flex items-stretch">
+  <!-- Left: Hero Image with Bouncing Elements (from landing.html) -->
+  <div class="hidden md:flex w-1/2 bg-slate-800 items-center justify-center relative">
+    <div class="relative w-full max-w-xs mx-auto">
+      <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=600&q=80" alt="CognitiveEdge - Engaged Learners" class="rounded-2xl shadow-2xl w-full">
+      <div class="absolute inset-0 rounded-2xl" style="background: linear-gradient(120deg, rgba(17,24,39,0.85) 0%, rgba(37,99,235,0.5) 100%);"></div>
+      <div class="absolute -left-20 top-24 bg-gray-900/90 border border-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-2xl animate-bounce">
+        <i class="bi bi-robot"></i>AI-Powered IQ Training
+      </div>
+      <div class="absolute -right-10 top-4 bg-gray-900/90 border border-green-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-2xl animate-bounce">
+        <i class="bi bi-graph-up"></i>Track Progress
+      </div>
+      <div class="absolute -right-10 bottom-3 translate-x-[-50%] translate-y-1/2 bg-gray-900/90 border border-yellow-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-2xl animate-bounce">
+        <i class="bi bi-trophy"></i>Achievements
+      </div>
+    </div>
+  </div>
+  <!-- Right: Login Form -->
+  <div class="flex flex-col justify-center w-full md:w-1/2 min-h-screen px-6 py-12 md:px-16 bg-slate-900">
+    <div class="max-w-md w-full mx-auto">
+      <div class="mb-8 text-center">
+        <h2 class="text-4xl font-extrabold text-white mb-2">Welcome Back</h2>
+        <p class="text-blue-200 text-lg">Access your government services with ease</p>
+      </div>
+      <div class="bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
+        <form id="loginForm" class="space-y-6" method="POST" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="space-y-4">
+            <div>
+              <label for="id_number" class="block text-sm font-medium text-gray-300 mb-1">ID Number</label>
+              <input id="id_number" name="id_number" type="text" required 
+                     class="appearance-none block w-full px-3 py-2 border border-gray-700 
+                            placeholder-gray-500 text-white bg-gray-700 rounded-md 
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                     placeholder="Enter your ID number">
+            </div>
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+              <input id="password" name="password" type="password" required 
+                     class="appearance-none block w-full px-3 py-2 border border-gray-700 
+                            placeholder-gray-500 text-white bg-gray-700 rounded-md 
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                     placeholder="Enter your password">
+            </div>
+          </div>
+          {% if error_message %}
+          <div class="rounded-md bg-red-500 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-white"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-white">
+                  {{ error_message }}
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          <div>
+            <button type="submit" 
+                    class="w-full flex justify-center py-3 px-4 border border-transparent 
+                           text-base font-semibold rounded-xl text-white bg-blue-600 
+                           hover:bg-blue-700 focus:outline-none focus:ring-2 
+                           focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Sign in
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="text-center text-sm text-gray-400 mt-6">
+        <p>Need help? Contact our support team</p>
+        <a href="mailto:support@aicitizen.com" class="text-blue-400 hover:text-blue-300">
+          support@aicitizen.com
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- OTP Modals -->
+  <div id="deliveryMethodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4 border border-slate-700">
+      <h2 class="text-2xl font-bold text-white mb-4">Choose OTP Delivery Method</h2>
+      <p class="text-blue-200 mb-6">Where would you like to receive your OTP?</p>
+      <div class="space-y-4">
+        <button onclick="selectDeliveryMethod('email')" 
+                class="w-full flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors">
+          <div class="flex items-center">
+            <i class="fas fa-envelope text-blue-400 mr-3"></i>
+            <div class="text-left">
+              <span class="text-white block">Email</span>
+              <span id="emailDisplay" class="text-blue-200 text-sm"></span>
+            </div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400"></i>
+        </button>
+        <button onclick="selectDeliveryMethod('phone')"
+                class="w-full flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors">
+          <div class="flex items-center">
+            <i class="fas fa-phone text-blue-400 mr-3"></i>
+            <div class="text-left">
+              <span class="text-white block">Phone</span>
+              <span id="phoneDisplay" class="text-blue-200 text-sm"></span>
+            </div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="otpModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4 border border-slate-700">
+      <h2 class="text-2xl font-bold text-white mb-4">Enter OTP</h2>
+      <p class="text-blue-200 mb-2">Please enter the OTP sent to your selected method</p>
+      <p id="otpTimer" class="text-blue-400 mb-6">Time remaining: 2:00</p>
+      <div class="space-y-4">
+        <input type="text" id="otpInput" maxlength="6" 
+               class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white 
+                      focus:outline-none focus:ring-2 focus:ring-blue-500"
+               placeholder="Enter 6-digit OTP">
+        <button onclick="verifyOTP()" 
+                class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Verify OTP
+        </button>
+        <button onclick="resendOTP()" 
+                class="w-full py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-600 
+                       focus:outline-none focus:ring-2 focus:ring-slate-500">
+          Resend OTP
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="https://kit.fontawesome.com/2e8b5c6bfa.js" crossorigin="anonymous"></script>
+  <script src="{% static 'js/login.js' %}"></script>
+</body>
+</html> 

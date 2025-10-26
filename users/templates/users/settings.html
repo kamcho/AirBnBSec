@@ -1,0 +1,170 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Account Settings - AICitizen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8">
+  <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+    <!-- Settings Header -->
+    <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 p-6 sm:p-8">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      <div class="relative z-10">
+        <h1 class="text-2xl sm:text-3xl font-bold text-white">Account Settings</h1>
+        <p class="text-blue-100 mt-2">Manage your account information and security</p>
+      </div>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 p-6 sm:p-8">
+      <!-- Settings Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-gray-700/50 rounded-xl p-4">
+          <nav class="space-y-1">
+            <a href="#account" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-white bg-gray-600">
+              <i class="fas fa-user-circle mr-3 text-blue-400"></i>
+              Account
+            </a>
+            <a href="#security" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:bg-gray-600 hover:text-white">
+              <i class="fas fa-shield-alt mr-3 text-gray-400"></i>
+              Security
+            </a>
+            <a href="#notifications" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:bg-gray-600 hover:text-white">
+              <i class="fas fa-bell mr-3 text-gray-400"></i>
+              Notifications
+            </a>
+            <a href="#privacy" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:bg-gray-600 hover:text-white">
+              <i class="fas fa-lock mr-3 text-gray-400"></i>
+              Privacy
+            </a>
+            <a href="#billing" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-300 hover:bg-gray-600 hover:text-white">
+              <i class="fas fa-credit-card mr-3 text-gray-400"></i>
+              Billing
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Main Settings Form -->
+      <div class="lg:col-span-3">
+        <div class="bg-gray-700/50 rounded-xl p-6">
+          <div class="mb-8">
+            <h2 class="text-xl font-semibold text-white mb-1">Account Information</h2>
+            <p class="text-gray-400 text-sm">Update your account details and preferences</p>
+          </div>
+          <form method="POST" class="space-y-6">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="rounded-md bg-red-500 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-white"></i>
+              </div>
+              <div class="ml-3">
+                {% for error in form.non_field_errors %}
+                <p class="text-sm text-white">{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="space-y-6">
+            <!-- Password Change Section -->
+            <div class="border-t border-gray-700 pt-6">
+              <h3 class="text-lg font-medium text-white mb-4">Change Password</h3>
+              <div class="space-y-4">
+                <div>
+                  <label for="{{ form.current_password.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
+                  <input type="password" name="{{ form.current_password.name }}" id="{{ form.current_password.id_for_label }}"
+                         class="appearance-none block w-full px-3 py-2 border border-gray-700 
+                                placeholder-gray-500 text-white bg-gray-700 rounded-md 
+                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  {% if form.current_password.errors %}
+                  <p class="mt-1 text-sm text-red-500">{{ form.current_password.errors.0 }}</p>
+                  {% endif %}
+                </div>
+                <div>
+                  <label for="{{ form.new_password.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">New Password</label>
+                  <input type="password" name="{{ form.new_password.name }}" id="{{ form.new_password.id_for_label }}"
+                         class="appearance-none block w-full px-3 py-2 border border-gray-700 
+                                placeholder-gray-500 text-white bg-gray-700 rounded-md 
+                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  {% if form.new_password.errors %}
+                  <p class="mt-1 text-sm text-red-500">{{ form.new_password.errors.0 }}</p>
+                  {% endif %}
+                </div>
+                <div>
+                  <label for="{{ form.confirm_password.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Confirm New Password</label>
+                  <input type="password" name="{{ form.confirm_password.name }}" id="{{ form.confirm_password.id_for_label }}"
+                         class="appearance-none block w-full px-3 py-2 border border-gray-700 
+                                placeholder-gray-500 text-white bg-gray-700 rounded-md 
+                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  {% if form.confirm_password.errors %}
+                  <p class="mt-1 text-sm text-red-500">{{ form.confirm_password.errors.0 }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+            <div class="pt-6 flex justify-end space-x-3 border-t border-gray-700">
+              <a href="{% url 'profile' %}" 
+                 class="px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Cancel
+              </a>
+              <button type="submit" 
+                      class="px-6 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom checkbox */
+  .custom-checkbox:checked {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    border-color: transparent;
+    background-color: #3b82f6;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  /* Toggle switch */
+  .toggle-checkbox:checked {
+    right: 0;
+    border-color: #3b82f6;
+    background-color: #3b82f6;
+  }
+  
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: rgba(59, 130, 246, 0.5);
+  }
+</style>
+
+<script>
+  // Initialize any interactive elements
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips if needed
+    const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
+    tooltipTriggers.forEach(trigger => {
+      new bootstrap.Tooltip(trigger);
+    });
+    
+    // Add animation to form elements
+    const formGroups = document.querySelectorAll('.form-group');
+    formGroups.forEach((group, index) => {
+      group.classList.add('opacity-0', 'translate-y-4');
+      group.style.transition = `opacity 0.3s ease-out ${index * 0.05}s, transform 0.3s ease-out ${index * 0.05}s`;
+      setTimeout(() => {
+        group.classList.remove('opacity-0', 'translate-y-4');
+      }, 10);
+    });
+  });
+</script>
+{% endblock %} 

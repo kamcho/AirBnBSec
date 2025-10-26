@@ -1,0 +1,206 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Profile - AICitizen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+    <!-- Profile Header -->
+    <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 p-6 sm:p-8">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-end space-y-4 sm:space-y-0 sm:space-x-6">
+        <div class="relative group">
+          <div class="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-white/10 backdrop-blur-sm border-4 border-white/20 flex items-center justify-center text-4xl font-bold text-white">
+            {{ form.first_name.value|default:'U'|first }}{{ form.last_name.value|default:'S'|first }}
+          </div>
+        </div>
+        <div class="text-center sm:text-left">
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">
+            {{ form.first_name.value|default:'User' }} {{ form.last_name.value|default:'' }}
+          </h1>
+          <p class="text-blue-100 font-medium">{{ user.role|default:'User' }}</p>
+        </div>
+      </div>
+    </div>
+    <!-- Profile Content -->
+    <div class="p-6 sm:p-8">
+      <div class="max-w-3xl mx-auto">
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-white">Edit Profile</h2>
+          <p class="text-gray-400">Update your personal information</p>
+        </div>
+        <form method="POST" class="space-y-6">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="rounded-md bg-red-500 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-white"></i>
+              </div>
+              <div class="ml-3">
+                {% for error in form.non_field_errors %}
+                <p class="text-sm text-white">{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">First Name</label>
+              {{ form.first_name|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+              {% if form.first_name.errors %}
+              <p class="mt-1 text-sm text-red-500">{{ form.first_name.errors.0 }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Last Name</label>
+              {{ form.last_name|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+              {% if form.last_name.errors %}
+              <p class="mt-1 text-sm text-red-500">{{ form.last_name.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <div>
+            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+            {{ form.email|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+            {% if form.email.errors %}
+            <p class="mt-1 text-sm text-red-500">{{ form.email.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Phone</label>
+            {{ form.phone|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+            {% if form.phone.errors %}
+            <p class="mt-1 text-sm text-red-500">{{ form.phone.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">City</label>
+              {{ form.city|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+              {% if form.city.errors %}
+              <p class="mt-1 text-sm text-red-500">{{ form.city.errors.0 }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Location</label>
+              {{ form.location|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+              {% if form.location.errors %}
+              <p class="mt-1 text-sm text-red-500">{{ form.location.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Gender</label>
+              {{ form.gender|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+              {% if form.gender.errors %}
+              <p class="mt-1 text-sm text-red-500">{{ form.gender.errors.0 }}</p>
+              {% endif %}
+            </div>
+            <div>
+              <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Date of Birth</label>
+              {{ form.date_of_birth|add_class:'appearance-none block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500' }}
+              {% if form.date_of_birth.errors %}
+              <p class="mt-1 text-sm text-red-500">{{ form.date_of_birth.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="flex justify-end space-x-4">
+            <a href="{% url 'profile' %}"
+               class="px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-white bg-gray-700 hover:bg-gray-600">
+              Cancel
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+              Save Changes
+            </button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom file input button */
+  .file-input {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+  
+  .file-input [type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+  }
+  
+  /* Date input styling */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.6;
+    cursor: pointer;
+  }
+  
+  input[type="date"]::-webkit-inner-spin-button,
+  input[type="date"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  /* Select dropdown arrow */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+  }
+</style>
+
+<script>
+  // Preview image before upload
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('{{ form.avatar.id_for_label }}');
+    const imagePreview = document.querySelector('.flex-shrink-0 img');
+    
+    if (fileInput && imagePreview) {
+      fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            if (!imagePreview) {
+              const previewDiv = document.querySelector('.flex-shrink-0');
+              const img = document.createElement('img');
+              img.src = e.target.result;
+              img.className = 'h-full w-full object-cover';
+              previewDiv.innerHTML = '';
+              previewDiv.appendChild(img);
+            } else {
+              imagePreview.src = e.target.result;
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %} 

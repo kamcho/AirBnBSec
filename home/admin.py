@@ -1,0 +1,39 @@
+from django.contrib import admin
+from .models import SecurityIncident, IncidentUpdate
+
+@admin.register(SecurityIncident)
+class SecurityIncidentAdmin(admin.ModelAdmin):
+    list_display = ['incident_id', 'title', 'incident_type', 'severity', 'status', 'reported_by', 'incident_date', 'reported_date']
+    list_filter = ['incident_type', 'severity', 'status', 'reported_date']
+    search_fields = ['incident_id', 'title', 'description', 'guest_name', 'guest_email']
+    readonly_fields = ['incident_id', 'reported_date', 'created_at', 'updated_at']
+    ordering = ['-reported_date']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('incident_id', 'title', 'description', 'incident_type', 'severity', 'status')
+        }),
+        ('People Involved', {
+            'fields': ('reported_by', 'guest_name', 'guest_email', 'guest_phone')
+        }),
+        ('Timeline', {
+            'fields': ('incident_date', 'reported_date', 'resolved_date')
+        }),
+        ('Details', {
+            'fields': ('location_description', 'evidence_files', 'estimated_damage_cost')
+        }),
+        ('Resolution', {
+            'fields': ('resolution_notes', 'police_report_number')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+
+@admin.register(IncidentUpdate)
+class IncidentUpdateAdmin(admin.ModelAdmin):
+    list_display = ['incident', 'update_type', 'description', 'created_at']
+    list_filter = ['update_type', 'created_at']
+    search_fields = ['incident__incident_id', 'description']
+    ordering = ['-created_at']

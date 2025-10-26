@@ -1,0 +1,142 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Upload Picture - AICitizen{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Upload Picture</h1>
+    
+    <div class="bg-gray-800 rounded-lg p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-300">Capture or Upload Picture</label>
+                <div class="flex space-x-4">
+                    <button type="button" id="captureBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-camera mr-2"></i>Capture
+                    </button>
+                    <button type="button" id="uploadBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-upload mr-2"></i>Upload
+                    </button>
+                </div>
+            </div>
+
+            <div id="cameraContainer" class="hidden">
+                <video id="camera" class="w-full rounded-lg" autoplay></video>
+                <button type="button" id="takePhotoBtn" class="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-camera-retro mr-2"></i>Take Photo
+                </button>
+            </div>
+
+            <div id="previewContainer" class="hidden">
+                <canvas id="preview" class="w-full rounded-lg"></canvas>
+                <div class="flex space-x-2 mt-2">
+                    <button type="button" id="retakeBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-redo mr-2"></i>Retake
+                    </button>
+                    <button type="button" id="usePhotoBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-check mr-2"></i>Use Photo
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="id_image" class="block text-sm font-medium text-gray-300">Image</label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <p class="text-red-500 text-sm">{{ form.image.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="space-y-2">
+                <label for="id_description" class="block text-sm font-medium text-gray-300">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="text-red-500 text-sm">{{ form.description.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-save mr-2"></i>Save Picture
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const captureBtn = document.getElementById('captureBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const cameraContainer = document.getElementById('cameraContainer');
+    const previewContainer = document.getElementById('previewContainer');
+    const camera = document.getElementById('camera');
+    const preview = document.getElementById('preview');
+    const takePhotoBtn = document.getElementById('takePhotoBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const usePhotoBtn = document.getElementById('usePhotoBtn');
+    const imageInput = document.getElementById('id_image');
+    let stream = null;
+
+    captureBtn.addEventListener('click', async function() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            camera.srcObject = stream;
+            cameraContainer.classList.remove('hidden');
+            previewContainer.classList.add('hidden');
+        } catch (err) {
+            console.error('Error accessing camera:', err);
+            alert('Error accessing camera. Please make sure you have granted camera permissions.');
+        }
+    });
+
+    uploadBtn.addEventListener('click', function() {
+        cameraContainer.classList.add('hidden');
+        previewContainer.classList.add('hidden');
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        imageInput.click();
+    });
+
+    takePhotoBtn.addEventListener('click', function() {
+        const context = preview.getContext('2d');
+        preview.width = camera.videoWidth;
+        preview.height = camera.videoHeight;
+        context.drawImage(camera, 0, 0);
+        previewContainer.classList.remove('hidden');
+    });
+
+    retakeBtn.addEventListener('click', function() {
+        previewContainer.classList.add('hidden');
+    });
+
+    usePhotoBtn.addEventListener('click', function() {
+        preview.toBlob(function(blob) {
+            const file = new File([blob], 'captured-image.jpg', { type: 'image/jpeg' });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            imageInput.files = dataTransfer.files;
+        }, 'image/jpeg');
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        cameraContainer.classList.add('hidden');
+        previewContainer.classList.add('hidden');
+    });
+
+    // Clean up camera stream when leaving the page
+    window.addEventListener('beforeunload', function() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AICitizen - AI-Powered Government Services{% endblock %}</title>
+     <title>AirBnBSec</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AirBnBSec: Secure your rental properties with advanced user verification. Trust, safety, and peace of mind for hosts and guests worldwide.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="icon" href="{% static 'Users/favicon.png' %}">
+    <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+      overflow-x: hidden;
+    }
+    </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Alpine.js for interactivity -->
+    <!-- Alpine.js for interactivity -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'users/css/styles.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: hsl(215 28% 17%);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: hsl(215 16% 47%);
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: hsl(215 16% 65%);
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(214.3 31.8% 91.4%)',
+                        input: 'hsl(214.3 31.8% 91.4%)',
+                        ring: 'hsl(222.2 84% 4.9%)',
+                        background: 'hsl(0 0% 100%)',
+                        foreground: 'hsl(222.2 84% 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(217 91% 60%)',
+                            foreground: 'hsl(210 40% 98%)'
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)'
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(0 84.2% 60.2%)',
+                            foreground: 'hsl(210 40% 98%)'
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210 40% 96.1%)',
+                            foreground: 'hsl(215.4 16.3% 46.9%)'
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(217 91% 95%)',
+                            foreground: 'hsl(222.2 47.4% 11.2%)'
+                        },
+                        popover: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)'
+                        },
+                        card: {
+                            DEFAULT: 'hsl(0 0% 100%)',
+                            foreground: 'hsl(222.2 84% 4.9%)'
+                        }
+                    },
+                    borderRadius: {
+                        lg: '0.5rem',
+                        md: 'calc(0.5rem - 2px)',
+                        sm: 'calc(0.5rem - 4px)'
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-900 text-gray-100 min-h-screen" x-data="{ sidebarOpen: false, userMenuOpen: false }">
+    <div class="min-h-screen bg-slate-900 flex">
+        <!-- Sidebar -->
+        <aside 
+            class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-900 border-r border-gray-800 flex flex-col transition-transform duration-300 ease-in-out"
+            :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full lg:translate-x-0': !sidebarOpen }"
+        >
+            <div class="flex-1 flex flex-col py-8 px-6">
+                <div class="flex items-center mb-10">
+                    <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center mr-2">
+                        <i data-lucide="shield" class="h-4 w-4 text-white"></i>
+                    </div>
+                    <span class="font-bold text-xl text-rose-400">Airbnb Security</span>
+                </div>
+                <nav class="space-y-2">
+                    <a href="{% url 'home:landing' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-white border border-gray-700">
+                        <i data-lucide="home" class="mr-3 h-4 w-4"></i>
+                        Dashboard
+                    </a>
+                    <a href="{% url 'home:incident_dashboard' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-gray-800">
+                        <i data-lucide="bar-chart-3" class="mr-3 h-4 w-4"></i>
+                        Analytics
+                    </a>
+                    <a href="{% url 'home:incident_list' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-rose-400 hover:bg-gray-800">
+                        <i data-lucide="alert-triangle" class="mr-3 h-4 w-4"></i>
+                        Security Incidents
+                        <span class="ml-auto px-2 py-0.5 text-xs font-medium bg-rose-600 text-white rounded-full">3</span>
+                    </a>
+                    <a href="{% url 'home:incident_create' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
+                        <i data-lucide="plus-circle" class="mr-3 h-4 w-4"></i>
+                        Report Incident
+                    </a>
+                    <a href="{% url 'home:verify_client' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-purple-400 hover:bg-gray-800">
+                        <i data-lucide="user-check" class="mr-3 h-4 w-4"></i>
+                        ID Verification
+                    </a>
+                    <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-gray-800">
+                        <i data-lucide="user" class="mr-3 h-4 w-4"></i>
+                        Profile
+                    </a>
+                    <a href="{% url 'settings' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-gray-400 hover:bg-gray-800">
+                        <i data-lucide="settings" class="mr-3 h-4 w-4"></i>
+                        Settings
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-rose-900/40 text-rose-400 border border-rose-800 relative">
+                        <i data-lucide="bell" class="mr-3 h-4 w-4"></i>
+                        Security Alerts
+                        <span class="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-rose-600 rounded-full animate-pulse">5 New</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="p-6">
+                <div class="bg-gray-800 rounded-lg p-4 text-center border border-gray-700">
+                    <div class="w-16 h-16 bg-rose-900/30 rounded-lg mx-auto mb-2 flex items-center justify-center border border-rose-800/50">
+                        <i data-lucide="shield-alert" class="h-6 w-6 text-rose-400"></i>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-2">
+                        Security Hotline
+                    </p>
+                    <a href="tel:+254742134431" class="text-rose-400 text-sm font-medium hover:underline flex items-center justify-center">
+                        <i data-lucide="phone" class="h-3 w-3 mr-1"></i> +254 742 134 431
+                    </a>
+                </div>
+            </div>
+        </aside>
+        <div class="flex-1 flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+            <!-- Top Navigation -->
+            <nav class="bg-gray-900 border-b border-gray-800 fixed top-0 lg:left-64 left-0 right-0 z-50 h-16 flex items-center px-4 transition-all duration-300">
+                <div class="flex items-center space-x-4 w-full justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shield" class="h-4 w-4 text-white"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-100">Airbnb Security</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="" class="hidden md:flex px-3 py-2 text-sm font-medium text-gray-400 hover:text-gray-100">
+                            Dashboard
+                        </a>
+                        <a href="" class="hidden md:flex px-3 py-2 text-sm font-medium text-gray-400 hover:text-gray-100 relative">
+                            Notifications
+                            {% if unread_notification_count > 0 %}
+                            <span class="absolute -top-1 -right-3 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">{{ unread_notification_count }}</span>
+                            {% endif %}
+                        </a>
+                        <!-- User dropdown -->
+                        <div class="relative" x-data="{ userMenuOpen: false }">
+                            <button 
+                                @click="userMenuOpen = !userMenuOpen"
+                                class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-400 hover:text-gray-100"
+                            >
+                                <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                                    <i data-lucide="user" class="h-4 w-4"></i>
+                                </div>
+                                <span class="hidden md:block">{{ request.user.get_full_name|default:'John Doe' }}</span>
+                            </button>
+                            <div 
+                                x-show="userMenuOpen" 
+                                @click.away="userMenuOpen = false"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="transform opacity-0 scale-95"
+                                x-transition:enter-end="transform opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="transform opacity-100 scale-100"
+                                x-transition:leave-end="transform opacity-0 scale-95"
+                                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-900 border border-gray-800 z-50"
+                            >
+                                <div class="py-1">
+                                    <a href="" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
+                                        <i data-lucide="user" class="mr-2 h-4 w-4"></i>
+                                        Profile
+                                    </a>
+                                    <a href="" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
+                                        <i data-lucide="settings" class="mr-2 h-4 w-4"></i>
+                                        Settings
+                                    </a>
+                                    <a href="" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
+                                        <i data-lucide="log-out" class="mr-2 h-4 w-4"></i>
+                                        Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Sidebar Toggle Button (visible on small/medium screens) -->
+                        <button 
+                            class="lg:hidden flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-100 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition"
+                            @click="sidebarOpen = !sidebarOpen"
+                            aria-label="Toggle sidebar"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+            <main class="pt-16">
+                <div class="px-4 py-6">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
