@@ -93,7 +93,7 @@ MPESA_API_TIMEOUT = 30
 
 # Security settings
 CSRF_TRUSTED_ORIGINS = [
-    'https://arhythmically-unciliated-danna.ngrok-free.dev',
+    'https://mybnbsecurity.pythonanywhere.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
