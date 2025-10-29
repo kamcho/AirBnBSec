@@ -27,6 +27,24 @@ __pycache__/
 *.svg
 *.webp
 
+
+
+# Python cache
+**/__pycache__/
+*.py[cod]
+
+# Django migrations (ignore in all apps)
+**/migrations/
+**/migrations/__init__.py
+
+# Virtual environments
+venv/
+vevn/
+
+# Environment variables
+.env
+
+
 # Video files
 *.mp4
 *.mov
