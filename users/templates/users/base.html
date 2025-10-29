@@ -130,40 +130,40 @@
                     <span class="font-bold text-xl text-rose-400">Airbnb Security</span>
                 </div>
                 <nav class="space-y-2">
-                    <a href="{% url 'home:landing' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-white border border-gray-700">
+                    <a href="/incidents/dashboard/" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-white border border-gray-700">
                         <i data-lucide="home" class="mr-3 h-4 w-4"></i>
                         Dashboard
                     </a>
-                    <a href="{% url 'home:incident_dashboard' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-gray-800">
+                    <a href="{% url 'home:incident_dashboard' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-gray-800">
                         <i data-lucide="bar-chart-3" class="mr-3 h-4 w-4"></i>
                         Analytics
                     </a>
-                    <a href="{% url 'home:incident_list' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-rose-400 hover:bg-gray-800">
+                    <a href="{% url 'home:incident_list' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-rose-400 hover:bg-gray-800">
                         <i data-lucide="alert-triangle" class="mr-3 h-4 w-4"></i>
                         Security Incidents
                         <span class="ml-auto px-2 py-0.5 text-xs font-medium bg-rose-600 text-white rounded-full">3</span>
                     </a>
-                    <a href="{% url 'home:incident_create_step1' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
+                    <a href="{% url 'home:incident_create_step1' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
                         <i data-lucide="plus-circle" class="mr-3 h-4 w-4"></i>
                         Report Incident
                     </a>
-                    <a href="{% url 'home:verify_client' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-purple-400 hover:bg-gray-800">
+                    <a href="{% url 'home:verify_client' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-purple-400 hover:bg-gray-800">
                         <i data-lucide="user-check" class="mr-3 h-4 w-4"></i>
                         ID Verification
                     </a>
-                    <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-gray-800">
+                    <a href="{% url 'profile' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-blue-400 hover:bg-gray-800">
                         <i data-lucide="user" class="mr-3 h-4 w-4"></i>
                         Profile
                     </a>
-                    <a href="{% url 'settings' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-gray-400 hover:bg-gray-800">
+                    <a href="{% url 'settings' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-gray-400 hover:bg-gray-800">
                         <i data-lucide="settings" class="mr-3 h-4 w-4"></i>
                         Settings
                     </a>
-                    <a href="{% url 'payments:make_payment' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
+                    <a href="{% url 'payments:make_payment' %}" @click="if (window.innerWidth < 1024) { $nextTick(() => { sidebarOpen = false }) }" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
                         <i data-lucide="credit-card" class="mr-3 h-4 w-4"></i>
                         Make Payment
                     </a>
-                    <a href="#" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-rose-900/40 text-rose-400 border border-rose-800 relative">
+                    <a href="#" @click.prevent="" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-rose-900/40 text-rose-400 border border-rose-800 relative">
                         <i data-lucide="bell" class="mr-3 h-4 w-4"></i>
                         Security Alerts
                         <span class="ml-auto px-2 py-0.5 text-xs font-bold text-white bg-rose-600 rounded-full animate-pulse">5 New</span>
@@ -227,11 +227,11 @@
                                 class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-900 border border-gray-800 z-50"
                             >
                                 <div class="py-1">
-                                    <a href="" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
+                                    <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
                                         <i data-lucide="user" class="mr-2 h-4 w-4"></i>
                                         Profile
                                     </a>
-                                    <a href="" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
+                                    <a href="{% url 'settings' %}" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
                                         <i data-lucide="settings" class="mr-2 h-4 w-4"></i>
                                         Settings
                                     </a>

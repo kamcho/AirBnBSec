@@ -14,7 +14,14 @@
     .incidents-container {
         max-width: 1200px;
         margin: 2rem auto;
-        padding: 2rem;
+        padding: 1rem;
+        width: 100%;
+    }
+    
+    @media (min-width: 640px) {
+        .incidents-container {
+            padding: 2rem;
+        }
     }
     
     .page-header {
@@ -149,17 +156,40 @@
     
     .incidents-grid {
         display: grid;
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        width: 100%;
+    }
+    
+    @media (min-width: 768px) {
+        .incidents-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .incidents-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
     
     .incident-card {
         background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: 1.25rem;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        width: 100%;
+        margin: 0;
+    }
+    
+    @media (min-width: 640px) {
+        .incident-card {
+            padding: 1.5rem;
+        }
     }
     
     .incident-card::before {
