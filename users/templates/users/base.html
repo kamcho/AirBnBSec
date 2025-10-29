@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,6 +58,9 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: hsl(215 16% 65%);
         }
+        
+        /* Hide Alpine elements until initialized */
+        [x-cloak] { display: none !important; }
     </style>
     
     <script>
@@ -111,12 +114,13 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-slate-900 text-gray-100 min-h-screen" x-data="{ sidebarOpen: false, userMenuOpen: false }">
-    <div class="min-h-screen bg-slate-900 flex">
+<body class="bg-slate-900 text-gray-100 min-h-screen" x-data="{ sidebarOpen: JSON.parse(localStorage.getItem('sidebarOpen') ?? 'false'), userMenuOpen: false }" x-init="$watch('sidebarOpen', value => localStorage.setItem('sidebarOpen', JSON.stringify(value)))">
+    <div class="min-h-screen w-full bg-slate-900 flex">
         <!-- Sidebar -->
         <aside 
-            class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-900 border-r border-gray-800 flex flex-col transition-transform duration-300 ease-in-out"
+            class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-900 border-r border-gray-800 flex flex-col transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0"
             :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full lg:translate-x-0': !sidebarOpen }"
+            x-cloak
         >
             <div class="flex-1 flex flex-col py-8 px-6">
                 <div class="flex items-center mb-10">
@@ -139,7 +143,7 @@
                         Security Incidents
                         <span class="ml-auto px-2 py-0.5 text-xs font-medium bg-rose-600 text-white rounded-full">3</span>
                     </a>
-                    <a href="{% url 'home:incident_create' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
+                    <a href="{% url 'home:incident_create_step1' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
                         <i data-lucide="plus-circle" class="mr-3 h-4 w-4"></i>
                         Report Incident
                     </a>
@@ -154,6 +158,10 @@
                     <a href="{% url 'settings' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-gray-400 hover:bg-gray-800">
                         <i data-lucide="settings" class="mr-3 h-4 w-4"></i>
                         Settings
+                    </a>
+                    <a href="{% url 'payments:make_payment' %}" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-green-400 hover:bg-gray-800">
+                        <i data-lucide="credit-card" class="mr-3 h-4 w-4"></i>
+                        Make Payment
                     </a>
                     <a href="#" class="flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-rose-900/40 text-rose-400 border border-rose-800 relative">
                         <i data-lucide="bell" class="mr-3 h-4 w-4"></i>
@@ -176,7 +184,7 @@
                 </div>
             </div>
         </aside>
-        <div class="flex-1 flex flex-col min-h-screen lg:ml-64 transition-all duration-300">
+        <div class="flex-1 flex flex-col min-h-screen w-full lg:ml-64 transition-all duration-300 bg-slate-900">
             <!-- Top Navigation -->
             <nav class="bg-gray-900 border-b border-gray-800 fixed top-0 lg:left-64 left-0 right-0 z-50 h-16 flex items-center px-4 transition-all duration-300">
                 <div class="flex items-center space-x-4 w-full justify-between">
@@ -227,7 +235,7 @@
                                         <i data-lucide="settings" class="mr-2 h-4 w-4"></i>
                                         Settings
                                     </a>
-                                    <a href="" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
+                                    <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 text-sm text-gray-100 hover:bg-gray-800">
                                         <i data-lucide="log-out" class="mr-2 h-4 w-4"></i>
                                         Logout
                                     </a>

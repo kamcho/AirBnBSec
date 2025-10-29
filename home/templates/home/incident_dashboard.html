@@ -247,28 +247,99 @@
     }
     
     .dashboard-content {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
         margin-bottom: 2rem;
     }
     
     .chart-section {
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chart-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        opacity: 0.7;
+        transition: all 0.4s ease;
+    }
+    
+    .chart-section:hover {
+        border-color: rgba(99, 102, 241, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .chart-section:hover::before {
+        opacity: 1;
+        height: 4px;
+    }
+    
+    .chart-container {
+        position: relative;
+        width: 100%;
+        flex: 1;
+        min-height: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    /* Custom scrollbar for chart containers with overflow */
+    .chart-container::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .chart-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    
+    .chart-container::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.5);
+        border-radius: 10px;
+    }
+    
+    .chart-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.7);
     }
     
     .section-title {
-        color: #fff;
-        font-weight: 700;
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
+        color: #e2e8f0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, transparent);
+        border-radius: 2px;
     }
     
     .section-title i {
@@ -558,14 +629,80 @@
     </div>
     
     <div class="dashboard-content">
-        <div class="chart-section">
-            <h2 class="section-title">
-                <i class="bi bi-bar-chart"></i>Incident Trends
-            </h2>
-            <div class="chart-placeholder">
-                <i class="bi bi-graph-up"></i>
-                <h3>Incident Trends Chart</h3>
-                <p>Visual representation of incidents over time will be displayed here</p>
+        <!-- Top Row: Main Chart -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+            <!-- Main Chart - Monthly Trends -->
+            <div class="chart-section xl:col-span-2">
+                <div class="chart-header">
+                    <h2 class="section-title">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5"></i> Monthly Incident Trends
+                    </h2>
+                    <div class="chart-actions">
+                        <button class="chart-action-btn active" data-period="month">Month</button>
+                        <button class="chart-action-btn" data-period="quarter">Quarter</button>
+                        <button class="chart-action-btn" data-period="year">Year</button>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 320px;">
+                    <canvas id="monthlyTrendsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Quick Stats Card -->
+            <div class="grid grid-rows-2 gap-6">
+                <!-- Incidents by Type -->
+                <div class="chart-section group hover:border-indigo-500/30 transition-all duration-300 h-full">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="section-title">
+                            <i data-lucide="list" class="h-5 w-5 text-indigo-400"></i> 
+                            <span class="ml-2">By Type</span>
+                        </h2>
+                        <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-1 rounded-full">{{ chart_data.incident_types|length }} Types</span>
+                    </div>
+                    <div class="chart-container h-48 relative">
+                        <canvas id="incidentTypeChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="typeNoData" style="display: none;">
+                            <div class="text-center p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
+                                <i data-lucide="pie-chart" class="h-6 w-6 text-gray-500 mx-auto mb-1"></i>
+                                <p class="text-xs text-gray-400">No data available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Incidents by Severity -->
+                <div class="chart-section group hover:border-amber-500/30 transition-all duration-300 h-full">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="section-title">
+                            <i data-lucide="alert-triangle" class="h-5 w-5 text-amber-400"></i> 
+                            <span class="ml-2">By Severity</span>
+                        </h2>
+                        <div class="flex items-center space-x-1">
+                            <span class="h-2 w-2 rounded-full bg-{{ chart_data.severity_levels.0|lower }}"></span>
+                            <span class="text-xs text-gray-400">{{ chart_data.severity_levels.0 }}</span>
+                        </div>
+                    </div>
+                    <div class="chart-container h-48 relative">
+                        <canvas id="severityChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="severityNoData" style="display: none;">
+                            <div class="text-center p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
+                                <i data-lucide="alert-triangle" class="h-6 w-6 text-gray-500 mx-auto mb-1"></i>
+                                <p class="text-xs text-gray-400">No data available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            
+            <!-- Incidents by Day of Week -->
+            <div class="chart-section md:col-span-2">
+                <h2 class="section-title">
+                    <i data-lucide="calendar" class="h-5 w-5"></i> Incidents by Day of Week
+                </h2>
+                <div class="chart-container h-64">
+                    <canvas id="weekdayChart"></canvas>
+                </div>
             </div>
         </div>
         
@@ -612,7 +749,7 @@
     </div>
     
     <div class="quick-actions">
-        <a href="{% url 'home:incident_create' %}" class="action-card">
+        <a href="{% url 'home:incident_create_step1' %}" class="action-card">
             <div class="action-icon">
                 <i data-lucide="plus-circle" class="h-6 w-6"></i>
             </div>
@@ -648,10 +785,272 @@
 
 {% block extra_js %}
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Initialize Lucide Icons
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide Icons
         lucide.createIcons();
+        
+        // Chart.js configuration
+        const chartColors = {
+            primary: 'rgba(59, 130, 246, 0.8)',
+            secondary: 'rgba(99, 102, 241, 0.8)',
+            success: 'rgba(16, 185, 129, 0.8)',
+            danger: 'rgba(239, 68, 68, 0.8)',
+            warning: 'rgba(245, 158, 11, 0.8)',
+            info: 'rgba(59, 130, 246, 0.8)',
+            light: 'rgba(203, 213, 225, 0.8)',
+            dark: 'rgba(30, 41, 59, 0.8)'
+        };
+
+        // 1. Monthly Trends Line Chart
+        const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart')?.getContext('2d');
+        if (monthlyTrendsCtx) {
+            new Chart(monthlyTrendsCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ chart_data.months|safe }},
+                    datasets: [{
+                        label: 'Incidents',
+                        data: {{ chart_data.monthly_counts|safe }},
+                        borderColor: chartColors.primary,
+                        backgroundColor: chartColors.primary.replace('0.8', '0.1'),
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: chartColors.primary,
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 14, weight: '600' },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} incident${context.parsed.y !== 1 ? 's' : ''}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Incidents by Type Doughnut Chart
+        const typeChartCtx = document.getElementById('incidentTypeChart')?.getContext('2d');
+        if (typeChartCtx) {
+            new Chart(typeChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ chart_data.incident_types|safe }},
+                    datasets: [{
+                        data: {{ chart_data.incident_type_counts|safe }},
+                        backgroundColor: [
+                            chartColors.primary,
+                            chartColors.secondary,
+                            chartColors.success,
+                            chartColors.warning,
+                            chartColors.danger,
+                            chartColors.info
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#e2e8f0',
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 13, weight: '600' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Severity Distribution Bar Chart
+        const severityCtx = document.getElementById('severityChart')?.getContext('2d');
+        if (severityCtx) {
+            new Chart(severityCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ chart_data.severity_levels|safe }},
+                    datasets: [{
+                        label: 'Incidents by Severity',
+                        data: {{ chart_data.severity_counts|safe }},
+                        backgroundColor: [
+                            chartColors.success,  // Low
+                            chartColors.warning,  // Medium
+                            chartColors.danger,   // High
+                            chartColors.dark      // Critical
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 13, weight: '600' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                precision: 0
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#e2e8f0',
+                                font: {
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 4. Weekday Distribution Bar Chart
+        const weekdayCtx = document.getElementById('weekdayChart')?.getContext('2d');
+        if (weekdayCtx) {
+            new Chart(weekdayCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ chart_data.weekday_labels|safe }},
+                    datasets: [{
+                        label: 'Incidents by Day of Week',
+                        data: {{ chart_data.weekday_data|safe }},
+                        backgroundColor: Array(7).fill(chartColors.info),
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        barThickness: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 13, weight: '600' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

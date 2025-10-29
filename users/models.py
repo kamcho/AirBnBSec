@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils import timezone
 
@@ -81,6 +82,32 @@ class MyUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class Subscription(models.Model):
+    """
+    Model representing a user's subscription.
+    """
+    user = models.OneToOneField(
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='subscription'
+    )
+    expiry = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_active(self):
+        """A subscription is active if it has an expiry in the future."""
+        return bool(self.expiry and timezone.now() < self.expiry)
+
+    @property
+    def status(self):
+        """Returns 'active' if subscription is active, 'expired' otherwise"""
+        return 'active' if self.is_active else 'expired'
+
+    def __str__(self):
+        return f"{self.user.email}'s subscription ({self.status})"
 
 class PersonalProfile(models.Model):
     user = models.OneToOneField(
@@ -163,3 +190,85 @@ class Notification(models.Model):
     def __str__(self):
         target = self.recipient_user or self.recipient_learner
         return f"To {target}: {self.title}"
+
+class Client(models.Model):
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    surname = models.CharField(max_length=100, null=True, blank=True)
+    id_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['last_name', 'first_name']
+        verbose_name = 'Client'
+        verbose_name_plural = 'Clients'
+    
+    def get_full_name(self):
+        """Return the full name of the client."""
+        return f"{self.first_name or ''} {self.last_name or ''}".strip() or str(self.id_number)
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.id_number})"
+
+class NameAlias(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='name_aliases')
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.first_name}  {self.client.id_number}"
+
+class ClientContact(models.Model):
+    CONTACT_TYPE_CHOICES = [
+        ('phone', 'Phone'),
+        ('email', 'Email'),
+        ('address', 'Address'),
+        ('emergency', 'Emergency Contact'),
+    ]
+    
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='contacts')
+    contact_type = models.CharField(max_length=20, choices=CONTACT_TYPE_CHOICES)
+    contact = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('client', 'contact')
+        ordering = ['contact_type', 'contact']
+        verbose_name = 'Client Contact'
+        verbose_name_plural = 'Client Contacts'
+    
+    def __str__(self):
+        return f"{self.client} - {self.get_contact_type_display()}: {self.contact}"
+
+class ClientImage(models.Model):
+    FILE_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+    ]
+    
+    CONTENT_TYPE_CHOICES = [
+        ('profile', 'Profile Picture'),
+        ('id_front', 'ID Front'),
+        ('id_back', 'ID Back'),
+        ('document', 'Document'),
+        ('other', 'Other'),
+    ]
+    
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='images')
+    file = models.FileField(upload_to='client_files/')
+    file_type = models.CharField(max_length=10, choices=FILE_TYPE_CHOICES, default='image')
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default='other')
+    description = models.CharField(max_length=255, blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name = 'Client File'
+        verbose_name_plural = 'Client Files'
+    
+    def __str__(self):
+        return f"{self.client} - {self.get_file_type_display()} ({self.get_content_type_display()})"

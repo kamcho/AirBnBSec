@@ -349,35 +349,18 @@
                 </div>
             </div>
             
-            <!-- Guest Information -->
+            <!-- Client Information -->
             <div class="form-row">
-                <!-- Guest Name -->
+                <!-- Client -->
                 <div class="form-group">
-                    <label for="{{ form.guest_name.id_for_label }}" class="form-label">
-                        <i class="bi bi-person-fill mr-2"></i>{{ form.guest_name.label }}
+                    <label for="{{ form.client.id_for_label }}" class="form-label">
+                        <i class="bi bi-person-fill mr-2"></i>{{ form.client.label }}
                     </label>
-                    {{ form.guest_name|add_class:"form-control" }}
-                    {{ form.guest_name.errors }}
-                </div>
-                
-                <!-- Guest Email -->
-                <div class="form-group">
-                    <label for="{{ form.guest_email.id_for_label }}" class="form-label">
-                        <i class="bi bi-envelope-fill mr-2"></i>{{ form.guest_email.label }}
-                    </label>
-                    {{ form.guest_email|add_class:"form-control"|attr:"type:email" }}
-                    {{ form.guest_email.errors }}
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <!-- Guest Phone -->
-                <div class="form-group">
-                    <label for="{{ form.guest_phone.id_for_label }}" class="form-label">
-                        <i class="bi bi-telephone-fill mr-2"></i>{{ form.guest_phone.label }}
-                    </label>
-                    {{ form.guest_phone|add_class:"form-control"|attr:"type:tel" }}
-                    {{ form.guest_phone.errors }}
+                    {{ form.client|add_class:"form-control" }}
+                    {% if form.client.help_text %}
+                        <small class="text-gray-400 text-sm mt-1 block">{{ form.client.help_text }}</small>
+                    {% endif %}
+                    {{ form.client.errors }}
                 </div>
                 
                 <!-- Estimated Damage Cost -->
@@ -393,15 +376,6 @@
                     </div>
                     {{ form.estimated_damage_cost.errors }}
                 </div>
-            </div>
-            
-            <!-- Location -->
-            <div class="form-group">
-                <label for="{{ form.location.id_for_label }}" class="form-label">
-                    <i class="bi bi-geo-alt-fill mr-2"></i>{{ form.location.label }}
-                </label>
-                {{ form.location|add_class:"form-control" }}
-                {{ form.location.errors }}
             </div>
             
             <!-- Location Description -->
@@ -435,23 +409,6 @@
                     <small class="text-gray-400 text-sm mt-1 block">{{ form.resolution_notes.help_text }}</small>
                 {% endif %}
                 {{ form.resolution_notes.errors }}
-            </div>
-            
-            <!-- Evidence Upload -->
-            <div class="form-group">
-                <label for="{{ form.evidence.id_for_label }}" class="form-label">
-                    <i class="bi bi-file-earmark-image mr-2"></i>{{ form.evidence.label }} (Optional)
-                </label>
-                <label for="{{ form.evidence.id_for_label }}" class="custom-file-upload">
-                    <i class="bi bi-cloud-upload"></i>
-                    <span>Click to upload or drag and drop</span>
-                    <div id="file-name" class="file-info">PNG, JPG, PDF up to 10MB</div>
-                    {{ form.evidence|add_class:"hidden"|attr:"onchange:updateFileName(this)" }}
-                </label>
-                {% if form.evidence.help_text %}
-                    <small class="text-gray-400 text-sm mt-1 block">{{ form.evidence.help_text }}</small>
-                {% endif %}
-                {{ form.evidence.errors }}
             </div>
             
             <div class="form-actions">

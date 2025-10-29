@@ -60,7 +60,7 @@ class ProfileCompleteView(LoginRequiredMixin, UpdateView):
     model = PersonalProfile
     form_class = CombinedUserProfileForm
     template_name = 'users/profile_complete.html'
-    success_url = reverse_lazy('dashboard')  # Change to your dashboard URL
+    success_url = reverse_lazy('home:incident_dashboard')  # Redirect to incident dashboard
 
     def get_object(self, queryset=None):
         # Get or create the user's profile
@@ -74,10 +74,10 @@ class ProfileCompleteView(LoginRequiredMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        if hasattr(self.request.user, 'profile'):
-            kwargs['profile'] = self.request.user.profile
+        # Get or create the profile if it doesn't exist
+        if not hasattr(self, 'object'):
+            self.object = self.get_object()
         return kwargs
-        return super().get(request, *args, **kwargs)
 
 
 
@@ -106,60 +106,46 @@ class UserLoginView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('dashboard')
+            return redirect('home:incident_dashboard')
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        id_number = request.POST.get('id_number')
+        email = request.POST.get('email')
         password = request.POST.get('password')
 
-        if not id_number or not password:
+        if not email or not password:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': False,
-                    'error': 'Please enter both ID number and password.'
+                    'error': 'Please enter both email and password.'
                 })
             return render(request, self.template_name, {
-                'error_message': 'Please enter both ID number and password.'
+                'error_message': 'Please enter both email and password.'
             })
 
-        user = authenticate(request, username=id_number, password=password)
+        # Normalize email to ensure case-insensitive matching
+        email = email.lower().strip()
+        
+        # Authenticate using email as username
+        user = authenticate(request, username=email, password=password)
         
         if user is not None:
-            try:
-                profile = user.profile
-                # Store user info in session instead of logging in
-                request.session['pending_user_id'] = user.id
-                request.session['pending_user_email'] = user.email
-                request.session['pending_user_phone'] = profile.phone
-                
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': True,
-                        'email': user.email,
-                        'phone': profile.phone
-                    })
-                return render(request, self.template_name, {
-                    'email': user.email,
-                    'phone': profile.phone
+            login(request, user)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect': '/incidents/dashboard/'
                 })
-            except Exception as e:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': str(e)
-                    })
-                return render(request, self.template_name, {
-                    'error_message':str(e)
-                })
+            return redirect('incident_dashboard')
         else:
+            error_msg = 'Invalid email or password.'
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': False,
-                    'error': 'Invalid ID number or password.'
+                    'error': error_msg
                 })
             return render(request, self.template_name, {
-                'error_message': 'Invalid ID number or password.'
+                'error_message': error_msg
             })
 
     def get_context_data(self, **kwargs):
@@ -175,8 +161,8 @@ class UserLoginView(TemplateView):
         return context
 
 class UserLogoutView(TemplateView):
-    template_name = 'users/landing.html'
-    next_page = reverse_lazy('landing')
+    template_name = 'home/landing.html'
+    next_page = reverse_lazy('home:landing')
 
     def get(self, request, *args, **kwargs):
         logout(request)

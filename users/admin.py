@@ -8,8 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 
 from .models import *
-
-
+from django.utils import timezone
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password."""
@@ -149,5 +148,7 @@ class PersonalProfileAdmin(admin.ModelAdmin):
 admin.site.register(MyUser, UserAdmin)
 admin.site.register(PersonalProfile, PersonalProfileAdmin)
 admin.site.register(Notification)
-
+admin.site.register(Subscription)
+admin.site.register(Client)
+admin.site.register(ClientContact)
 # admin.site.unregister(Group)

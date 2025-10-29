@@ -6,145 +6,169 @@
   <title>Login - AICitizen</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { 
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+    }
+    .login-card {
+      backdrop-filter: blur(10px);
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(2, 8, 24, 0.37);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .form-input {
+      transition: all 0.3s ease;
+    }
+    .form-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
   </style>
   {% load static %}
 </head>
-<body class="bg-slate-900 text-gray-100 min-h-screen flex items-stretch">
-  <!-- Left: Hero Image with Bouncing Elements (from landing.html) -->
-  <div class="hidden md:flex w-1/2 bg-slate-800 items-center justify-center relative">
-    <div class="relative w-full max-w-xs mx-auto">
-      <img src="https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=600&q=80" alt="CognitiveEdge - Engaged Learners" class="rounded-2xl shadow-2xl w-full">
-      <div class="absolute inset-0 rounded-2xl" style="background: linear-gradient(120deg, rgba(17,24,39,0.85) 0%, rgba(37,99,235,0.5) 100%);"></div>
-      <div class="absolute -left-20 top-24 bg-gray-900/90 border border-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-2xl animate-bounce">
-        <i class="bi bi-robot"></i>AI-Powered IQ Training
-      </div>
-      <div class="absolute -right-10 top-4 bg-gray-900/90 border border-green-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-2xl animate-bounce">
-        <i class="bi bi-graph-up"></i>Track Progress
-      </div>
-      <div class="absolute -right-10 bottom-3 translate-x-[-50%] translate-y-1/2 bg-gray-900/90 border border-yellow-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-2xl animate-bounce">
-        <i class="bi bi-trophy"></i>Achievements
-      </div>
+<body class="flex items-center justify-center p-4">
+  <div class="w-full max-w-md animate__animated animate__fadeIn">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-white mb-3 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Welcome Back</h1>
+      <p class="text-blue-200 text-lg">Sign in to access your account</p>
     </div>
-  </div>
-  <!-- Right: Login Form -->
-  <div class="flex flex-col justify-center w-full md:w-1/2 min-h-screen px-6 py-12 md:px-16 bg-slate-900">
-    <div class="max-w-md w-full mx-auto">
-      <div class="mb-8 text-center">
-        <h2 class="text-4xl font-extrabold text-white mb-2">Welcome Back</h2>
-        <p class="text-blue-200 text-lg">Access your government services with ease</p>
-      </div>
-      <div class="bg-slate-800 rounded-2xl shadow-2xl p-8 border border-slate-700">
-        <form id="loginForm" class="space-y-6" method="POST" action="{% url 'login' %}">
-          {% csrf_token %}
-          <div class="space-y-4">
-            <div>
-              <label for="id_number" class="block text-sm font-medium text-gray-300 mb-1">ID Number</label>
-              <input id="id_number" name="id_number" type="text" required 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-700 
-                            placeholder-gray-500 text-white bg-gray-700 rounded-md 
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                     placeholder="Enter your ID number">
-            </div>
-            <div>
-              <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
-              <input id="password" name="password" type="password" required 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-700 
-                            placeholder-gray-500 text-white bg-gray-700 rounded-md 
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                     placeholder="Enter your password">
-            </div>
-          </div>
-          {% if error_message %}
-          <div class="rounded-md bg-red-500 p-4">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <i class="fas fa-exclamation-circle text-white"></i>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-white">
-                  {{ error_message }}
-                </p>
-              </div>
-            </div>
-          </div>
-          {% endif %}
+    
+    <div class="login-card rounded-2xl shadow-2xl p-8">
+      <form id="loginForm" class="space-y-6" method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="space-y-5">
           <div>
-            <button type="submit" 
-                    class="w-full flex justify-center py-3 px-4 border border-transparent 
-                           text-base font-semibold rounded-xl text-white bg-blue-600 
-                           hover:bg-blue-700 focus:outline-none focus:ring-2 
-                           focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-              <i class="fas fa-sign-in-alt mr-2"></i>
-              Sign in
-            </button>
-          </div>
-        </form>
-      </div>
-      <div class="text-center text-sm text-gray-400 mt-6">
-        <p>Need help? Contact our support team</p>
-        <a href="mailto:support@aicitizen.com" class="text-blue-400 hover:text-blue-300">
-          support@aicitizen.com
-        </a>
-      </div>
-    </div>
-  </div>
-  <!-- OTP Modals -->
-  <div id="deliveryMethodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4 border border-slate-700">
-      <h2 class="text-2xl font-bold text-white mb-4">Choose OTP Delivery Method</h2>
-      <p class="text-blue-200 mb-6">Where would you like to receive your OTP?</p>
-      <div class="space-y-4">
-        <button onclick="selectDeliveryMethod('email')" 
-                class="w-full flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors">
-          <div class="flex items-center">
-            <i class="fas fa-envelope text-blue-400 mr-3"></i>
-            <div class="text-left">
-              <span class="text-white block">Email</span>
-              <span id="emailDisplay" class="text-blue-200 text-sm"></span>
+            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+              </div>
+              <input id="email" name="email" type="email" required 
+                     autocomplete="email" autofocus
+                     class="form-input w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl
+                            text-white placeholder-gray-400 focus:outline-none 
+                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     placeholder="you@example.com">
             </div>
           </div>
-          <i class="fas fa-chevron-right text-gray-400"></i>
-        </button>
-        <button onclick="selectDeliveryMethod('phone')"
-                class="w-full flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors">
-          <div class="flex items-center">
-            <i class="fas fa-phone text-blue-400 mr-3"></i>
-            <div class="text-left">
-              <span class="text-white block">Phone</span>
-              <span id="phoneDisplay" class="text-blue-200 text-sm"></span>
+          
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+              <a href="{% url 'password_reset' %}" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">Forgot password?</a>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <input id="password" name="password" type="password" required 
+                     autocomplete="current-password"
+                     class="form-input w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl
+                            text-white placeholder-gray-400 focus:outline-none 
+                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     placeholder="••••••••">
             </div>
           </div>
-          <i class="fas fa-chevron-right text-gray-400"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-  <div id="otpModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-slate-800 rounded-lg p-8 max-w-md w-full mx-4 border border-slate-700">
-      <h2 class="text-2xl font-bold text-white mb-4">Enter OTP</h2>
-      <p class="text-blue-200 mb-2">Please enter the OTP sent to your selected method</p>
-      <p id="otpTimer" class="text-blue-400 mb-6">Time remaining: 2:00</p>
-      <div class="space-y-4">
-        <input type="text" id="otpInput" maxlength="6" 
-               class="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white 
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
-               placeholder="Enter 6-digit OTP">
-        <button onclick="verifyOTP()" 
-                class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500">
-          Verify OTP
-        </button>
-        <button onclick="resendOTP()" 
-                class="w-full py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-600 
-                       focus:outline-none focus:ring-2 focus:ring-slate-500">
-          Resend OTP
-        </button>
-      </div>
+          
+          {% if error_message %}
+          <div class="p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-100 text-sm flex items-start">
+            <svg class="h-5 w-5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <div class="ml-3">
+              <p>{{ error_message }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div>
+          <button type="submit" 
+                  class="w-full flex justify-center items-center py-3 px-4 rounded-xl text-white 
+                         bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700
+                         font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 
+                         focus:ring-offset-2 focus:ring-offset-slate-800 transition-all duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+            </svg>
+            Sign In
+          </button>
+        </div>
+
+        <div class="text-center text-sm text-gray-400 pt-4 border-t border-slate-700 mt-6">
+          <p>Don't have an account? 
+            <a href="#" class="text-blue-400 hover:text-blue-300 font-medium">Contact support</a>
+          </p>
+        </div>
+      </form>
     </div>
   </div>
   <script src="https://kit.fontawesome.com/2e8b5c6bfa.js" crossorigin="anonymous"></script>
-  <script src="{% static 'js/login.js' %}"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.innerHTML;
+      
+      // Show loading state
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing in...';
+      
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          // Show error message
+          alert(data.error || 'Invalid credentials. Please try again.');
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalButtonText;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+      }
+    });
+    
+    // Auto-focus the ID field on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const idInput = document.getElementById('id_number');
+      if (idInput) idInput.focus();
+    });
+  </script>
 </body>
 </html> 

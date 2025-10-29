@@ -1,0 +1,770 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Add Evidence - {{ incident.incident_id }} - AirBnBSec{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .evidence-thumbnail {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .evidence-thumbnail:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .evidence-overlay {
+        transition: all 0.3s ease;
+        opacity: 0;
+    }
+    
+    .evidence-thumbnail:hover .evidence-overlay {
+        opacity: 1;
+    }
+    
+    .btn-outline-light {
+        --bs-btn-hover-bg: rgba(255, 255, 255, 0.1);
+        --bs-btn-active-bg: rgba(255, 255, 255, 0.2);
+    }
+    
+    .evidence-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem 3rem;
+    }
+    
+    .evidence-card {
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .evidence-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #6366f1);
+    }
+    
+    .section-title {
+        color: #f8fafc;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 0.75rem;
+        color: #3b82f6;
+    }
+    
+    .btn-action {
+        padding: 0.5rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        border: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    
+    .btn-outline-secondary {
+        background: transparent;
+        border: 1px solid #334155;
+        color: #94a3b8;
+    }
+    
+    .btn-outline-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select, .form-floating > .form-control, 
+    .form-control:focus, .form-select:focus, .form-floating > .form-control:focus {
+        background-color: rgba(15, 23, 42, 0.7);
+        border: 1px solid #334155;
+        color: #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+        box-shadow: none;
+    }
+    
+    .form-control:focus, .form-select:focus, .form-floating > .form-control:focus {
+        background-color: rgba(15, 23, 42, 0.9);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    .form-floating > label {
+        color: #94a3b8;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-select ~ label {
+        color: #94a3b8;
+        opacity: 0.8;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+    
+    .form-check-input {
+        background-color: rgba(15, 23, 42, 0.7);
+        border: 1px solid #334155;
+        margin-top: 0.15em;
+    }
+    
+    .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    .form-switch .form-check-input {
+        width: 2.2em;
+        margin-right: 0.5em;
+    }
+    
+    .form-switch .form-check-input:focus {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%233b82f6'/%3e%3c/svg%3e");
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-position: right center;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    }
+    
+    /* File Upload Area */
+    .file-upload-area {
+        border: 2px dashed #334155;
+        border-radius: 0.75rem;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+        background: rgba(30, 41, 59, 0.3);
+        position: relative;
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        background: rgba(30, 41, 59, 0.5);
+        border-color: #3b82f6;
+    }
+    
+    .file-upload-area.dragover {
+        background: rgba(37, 99, 235, 0.1);
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+    }
+    
+    .file-upload-area:hover {
+        border-color: #3b82f6;
+        background: rgba(37, 99, 235, 0.1);
+    }
+    
+    .file-upload-icon {
+        font-size: 3rem;
+        color: #3b82f6;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .file-upload-area:hover .file-upload-icon {
+        transform: translateY(-2px);
+    }
+    
+    .file-upload-text h5 {
+        color: #f8fafc;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .file-upload-text p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .file-upload-btn {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .file-upload-btn input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .file-info {
+        background: rgba(15, 23, 42, 0.7);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-top: 1rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .file-info i {
+        color: #3b82f6;
+        margin-right: 0.5rem;
+    }
+    
+    h2 {
+        color: #f8fafc;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Breadcrumb Styling */
+    .breadcrumb {
+        background: rgba(30, 41, 59, 0.5);
+        padding: 0.75rem 1.25rem;
+        margin: 0 0 2rem 0;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        white-space: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .breadcrumb-item {
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+    
+    .breadcrumb-item a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .breadcrumb-item a:hover {
+        color: #3b82f6;
+        transform: translateY(-1px);
+    }
+    
+    .breadcrumb-item.active {
+        color: #e2e8f0;
+        font-weight: 600;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: #64748b;
+        content: '›';
+        font-size: 1.2rem;
+        line-height: 1;
+        margin: 0 0.5rem;
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="evidence-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home:incident_list' %}">Incidents</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'home:incident_detail' pk=incident.pk %}">{{ incident.incident_id }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Evidence</li>
+        </ol>
+    </nav>
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2>
+            <i class="mdi mdi-file-document-multiple-outline me-2"></i>
+            Evidence for {{ incident.incident_id }}
+        </h2>
+        <a href="{% url 'home:incident_detail' pk=incident.pk %}" class="btn btn-outline-secondary">
+            <i class="mdi mdi-arrow-left me-1"></i> Back to Incident
+        </a>
+    </div>
+    
+    <!-- Existing Evidence -->
+    {% if incident.incidentevidence_set.all %}
+    <div class="evidence-card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="mdi mdi-folder-image me-2 text-primary"></i>
+                Existing Evidence ({{ incident.incidentevidence_set.count }})
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                {% for evidence in incident.incidentevidence_set.all %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="evidence-thumbnail position-relative rounded overflow-hidden bg-dark">
+                        {% if evidence.is_image %}
+                            <img src="{{ evidence.file.url }}" class="img-fluid w-100" alt="Evidence image" style="height: 180px; object-fit: cover;">
+                        {% elif evidence.is_video %}
+                            <div class="d-flex align-items-center justify-content-center bg-secondary" style="height: 180px;">
+                                <i class="mdi mdi-play-circle-outline text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        {% else %}
+                            <div class="d-flex flex-column align-items-center justify-content-center text-center p-4" style="height: 180px;">
+                                <i class="mdi mdi-file-document-outline text-white-50 mb-2" style="font-size: 3rem;"></i>
+                                <span class="text-white-50 small">{{ evidence.filename|truncatechars:20 }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="evidence-overlay position-absolute w-100 px-3 py-2" style="bottom: 0; left: 0; background: rgba(0,0,0,0.7);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-truncate text-white small" title="{{ evidence.filename }}">
+                                    {{ evidence.filename|truncatechars:20 }}
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ evidence.file.url }}" target="_blank" class="btn btn-sm btn-outline-light" title="View">
+                                        <i class="mdi mdi-eye"></i>
+                                    </a>
+                                    <a href="{{ evidence.file.url }}" download class="btn btn-sm btn-outline-light" title="Download">
+                                        <i class="mdi mdi-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% if evidence.description %}
+                            <div class="text-white-50 small text-truncate mt-1" title="{{ evidence.description }}">
+                                {{ evidence.description|truncatechars:30 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Upload Card -->
+    <div class="evidence-card">
+        <div class="card-header">
+            <div class="d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">
+                    <i class="mdi mdi-cloud-upload-outline me-2 text-primary"></i>
+                    Upload New Evidence
+                </h5>
+                <span class="badge bg-primary-soft rounded-pill">
+                    <i class="mdi mdi-alert-circle-outline me-1"></i> Required fields
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-light bg-light border-0 mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="mdi mdi-information-outline text-primary fs-4 me-3"></i>
+                    <div>
+                        <h6 class="mb-1">Upload Guidelines</h6>
+                        <p class="mb-0 small">Upload images, videos, or documents related to this incident. Maximum file size is 10MB.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate id="evidenceForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- File Upload -->
+                        <div class="file-upload-wrapper mb-4">
+                            <label class="form-label fw-medium mb-3 d-flex align-items-center">
+                                <i class="mdi mdi-paperclip me-2 text-primary"></i> 
+                                <span>Select File</span>
+                                <span class="text-danger ms-1">*</span>
+                            </label>
+                            
+                            <div class="file-upload-area position-relative p-6 rounded-lg border-2 border-dashed border-gray-700 hover:border-blue-500 transition-colors duration-200" id="dropZone">
+                                <div class="file-upload-content text-center">
+                                    <div class="file-upload-icon text-blue-500 mb-4">
+                                        <i class="mdi mdi-cloud-upload-outline mdi-48px"></i>
+                                    </div>
+                                    <h5 class="text-lg font-medium text-gray-100 mb-2">Drag & drop files here</h5>
+                                    <p class="text-gray-400 mb-4">or</p>
+                                    <div class="file-upload-btn d-inline-block">
+                                        <button type="button" class="btn btn-primary px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-shadow">
+                                            <i class="mdi mdi-upload me-2"></i> Browse Files
+                                        </button>
+                                        <input type="file" name="file" id="id_file" multiple 
+                                               class="d-none" 
+                                               accept="image/*,video/*,.pdf,.doc,.docx"
+                                               required>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-4">
+                                        Supported formats: JPG, PNG, GIF, PDF, DOC, DOCX, MP4 (Max 10MB each)
+                                    </p>
+                                    <div id="fileList" class="mt-4 space-y-2"></div>
+                                    <div class="invalid-feedback mt-2 text-red-400 text-sm flex items-center justify-center">
+                                        <i class="mdi mdi-alert-circle-outline me-1"></i> Please select at least one valid file.
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="form-group mb-4">
+                                <label for="id_description" class="form-label fw-medium mb-3">
+                                    <i class="mdi mdi-text-subject text-primary me-2"></i>
+                                    Description (Optional)
+                                </label>
+                                <div class="form-floating w-100">
+                                    <textarea class="form-control w-100" id="id_description" name="description" 
+                                        placeholder="Enter evidence description" style="min-height: 120px; width: 100%;"></textarea>
+                                    <label for="id_description">
+                                        <span class="text-muted">Add a brief description of this evidence (e.g., what it shows, when it was taken)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4 pt-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyTeam" checked>
+                                    <label class="form-check-label small text-muted" for="notifyTeam">
+                                        <i class="mdi mdi-bell-outline me-1"></i> Notify team about this upload
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="mdi mdi-cloud-upload-outline me-2"></i> Upload Evidence
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+            // File Upload Handling
+            const fileInput = document.querySelector('input[type="file"]');
+            const uploadArea = document.querySelector('.file-upload-area');
+            const uploadText = document.querySelector('.file-upload-text');
+            const uploadIcon = document.querySelector('.file-upload-icon');
+            const fileList = document.getElementById('fileList');
+            const maxFiles = 10; // Maximum number of files allowed
+            
+            // Update file input to accept multiple files
+            if (fileInput) {
+                fileInput.setAttribute('multiple', 'multiple');
+            }
+            
+            // Handle click on upload area
+            dropZone.addEventListener('click', (e) => {
+                // Only trigger file input if not clicking on a button or link
+                if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                    fileInput.click();
+                }
+            });
+            
+            // Also handle the browse files button
+            const browseBtn = dropZone.querySelector('button');
+            if (browseBtn) {
+                browseBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    fileInput.click();
+                });
+            }
+            
+            // Handle file selection
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(this.files);
+            });
+            
+            // Function to handle selected files
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    // Clear previous file list
+                    fileList.innerHTML = '';
+                    
+                    // Limit number of files
+                    if (files.length > maxFiles) {
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'text-red-400 text-sm mt-2 flex items-center justify-center';
+                        errorMsg.innerHTML = `
+                            <i class="mdi mdi-alert-circle-outline me-1"></i>
+                            Maximum ${maxFiles} files allowed. Only the first ${maxFiles} files will be uploaded.
+                        `;
+                        fileList.appendChild(errorMsg);
+                    }
+                    
+                    // Display file list
+                    const filesToProcess = files.slice(0, maxFiles);
+                    let totalSize = 0;
+                    
+                    filesToProcess.forEach((file, index) => {
+                        const fileSize = file.size / (1024 * 1024); // Convert to MB
+                        totalSize += fileSize;
+                        
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'flex items-center justify-between bg-gray-800 p-3 rounded-lg border border-gray-700';
+                        fileItem.innerHTML = `
+                            <div class="flex items-center min-w-0">
+                                <div class="bg-blue-500/10 p-2 rounded-lg mr-3">
+                                    <i class="mdi mdi-file-document-outline text-blue-400"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-gray-100 truncate max-w-xs">${file.name}</p>
+                                    <p class="text-xs text-gray-400">${fileSize.toFixed(2)} MB • ${file.type || 'Unknown type'}</p>
+                                </div>
+                            </div>
+                            <button type="button" class="text-gray-400 hover:text-red-400 transition-colors" data-index="${index}">
+                                <i class="mdi mdi-close"></i>
+                            </button>
+                        `;
+                        
+                        fileList.appendChild(fileItem);
+                    });
+                    
+                    // Update UI
+                    const totalSizeMB = (totalSize).toFixed(2);
+                    const fileCount = filesToProcess.length;
+                    
+                    uploadText.querySelector('h5').textContent = `${fileCount} file${fileCount !== 1 ? 's' : ''} selected • ${totalSizeMB} MB`;
+                    uploadIcon.innerHTML = '<i class="mdi mdi-check-circle-outline text-green-500"></i>';
+                    
+                    // Add event listeners to remove buttons
+                    fileList.querySelectorAll('button[data-index]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const index = parseInt(btn.getAttribute('data-index'));
+                            removeFile(index);
+                        });
+                    });
+                }
+            }
+            
+            // Function to remove a file from the selection
+            function removeFile(index) {
+                const dt = new DataTransfer();
+                const { files } = fileInput;
+                
+                // Add all files except the one to be removed
+                for (let i = 0; i < files.length; i++) {
+                    if (i !== index) {
+                        dt.items.add(files[i]);
+                    }
+                }
+                
+                // Update file input
+                fileInput.files = dt.files;
+                
+                // Refresh the file list display
+                handleFiles(fileInput.files);
+            }
+            
+            // Handle dropped files
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    // Update file input with dropped files
+                    fileInput.files = files;
+                    handleFiles(files);
+                }
+                
+                // Remove highlight
+                uploadArea.classList.remove('border-primary');
+                uploadArea.classList.add('border-secondary');
+            }
+            
+            // Function to handle selected files
+        function handleFiles(files) {
+            if (files.length > 0) {
+                // Clear previous file list
+                fileList.innerHTML = '';
+                
+                // Limit number of files
+                if (files.length > maxFiles) {
+                    alert(`You can only upload up to ${maxFiles} files at once.`);
+                    return;
+                }
+                
+                // Display file list
+                const fileListHTML = [];
+                for (let i = 0; i < Math.min(files.length, maxFiles); i++) {
+                    const file = files[i];
+                    const fileSize = (file.size / (1024 * 1024)).toFixed(2); // Convert to MB
+                    fileListHTML.push(`
+                        <div class="d-flex align-items-center justify-content-between bg-dark-soft p-2 rounded mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-file-document-outline me-2"></i>
+                                <span class="small">${file.name}</span>
+                            </div>
+                            <span class="badge bg-secondary">${fileSize} MB</span>
+                        </div>
+                    `);
+                }
+                
+                fileList.innerHTML = fileListHTML.join('');
+                uploadText.querySelector('h5').textContent = `${files.length} file(s) selected`;
+                uploadIcon.innerHTML = '<i class="mdi mdi-check-circle-outline text-success"></i>';
+            }
+        }
+        
+        // Handle dropped files
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                // Update file input with dropped files
+                fileInput.files = files;
+                handleFiles(files);
+            }
+            
+            // Remove highlight
+            uploadArea.classList.remove('border-primary');
+            uploadArea.classList.add('border-secondary');
+        }
+        
+        // Get the drop zone element
+        const dropZone = document.getElementById('dropZone');
+        
+        // Handle drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        
+        // Remove highlight when item leaves drop zone
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            dropZone.classList.add('dragover');
+        }
+        
+        function unhighlight() {
+            dropZone.classList.remove('dragover');
+        }
+        
+        // Form validation
+        const form = document.getElementById('evidenceForm');
+        form.addEventListener('submit', function(event) {
+            const fileInput = document.getElementById('id_file');
+            const fileCount = fileInput.files.length;
+            
+            if (fileCount === 0) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger mt-3';
+                errorDiv.innerHTML = '<i class="mdi mdi-alert-circle me-2"></i> Please select at least one file to upload.';
+                
+                // Remove any existing error messages
+                const existingError = form.querySelector('.alert-danger');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Insert error message after the file input
+                fileInput.parentNode.insertBefore(errorDiv, fileInput.nextSibling);
+            }
+            
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+        
+        // Show loading state on form submission
+        form.addEventListener('submit', function() {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
+            }
+        });
+    });
+</script>
+{% endblock %}

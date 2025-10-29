@@ -434,7 +434,7 @@
             </div>
             
             <div class="form-group">
-                <a href="{% url 'home:incident_create' %}" class="btn-create">
+                <a href="{% url 'home:incident_create_step1' %}" class="btn-create">
                     <i class="bi bi-plus-circle"></i>Report Incident
                 </a>
             </div>
@@ -479,12 +479,14 @@
                         <a href="{% url 'home:incident_detail' incident.pk %}" class="btn-action btn-view">
                             <i class="bi bi-eye"></i>View
                         </a>
+                        {% if user == incident.reported_by or user.is_superuser %}
                         <a href="{% url 'home:incident_update' incident.pk %}" class="btn-action btn-edit">
                             <i class="bi bi-pencil"></i>Edit
                         </a>
                         <a href="{% url 'home:incident_delete' incident.pk %}" class="btn-action btn-delete">
                             <i class="bi bi-trash"></i>Delete
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -516,7 +518,7 @@
             <i class="bi bi-shield-check"></i>
             <h3>No Incidents Found</h3>
             <p>No security incidents match your current filters.</p>
-            <a href="{% url 'home:incident_create' %}" class="btn-create">
+            <a href="{% url 'home:incident_create_step1' %}" class="btn-create">
                 <i class="bi bi-plus-circle"></i>Report First Incident
             </a>
         </div>

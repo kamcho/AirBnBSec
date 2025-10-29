@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import get_user_model
-
+from .models import PersonalProfile
 User = get_user_model()
 
 
@@ -74,45 +74,50 @@ class UserRegistrationForm(forms.ModelForm):
             user.save()
         return user
 
-class CombinedUserProfileForm(forms.Form):
+class CombinedUserProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=100, required=False)
     last_name = forms.CharField(max_length=100, required=False)
-    email = forms.EmailField(required=True)
-    phone = forms.CharField(max_length=100, required=False)
-    city = forms.CharField(max_length=100, required=False)
-    gender = forms.ChoiceField(choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')], required=False)
-    location = forms.CharField(max_length=255, required=False)
-    date_of_birth = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    
+    class Meta:
+        model = PersonalProfile
+        fields = ['first_name', 'last_name', 'phone', 'city', 'gender', 'location']
 
-    def __init__(self, *args, user=None, profile=None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        # Get user and profile from kwargs before passing to parent
+        self.user = kwargs.pop('user', None)
+        profile = kwargs.pop('profile', None)
+        
+        # If we have an instance but no profile, use the instance
+        instance = kwargs.get('instance')
+        if instance and not profile:
+            profile = instance
+            kwargs['instance'] = instance
+        
+        # If we have a profile but no instance, set the instance
+        if profile and not instance:
+            kwargs['instance'] = profile
+            
         super().__init__(*args, **kwargs)
-        if user:
-            self.fields['first_name'].initial = user.first_name
-            self.fields['last_name'].initial = user.last_name
-            self.fields['email'].initial = user.email
-        if profile:
-            self.fields['phone'].initial = profile.phone
-            self.fields['city'].initial = profile.city
-            self.fields['gender'].initial = profile.gender
-            self.fields['location'].initial = profile.location
-            self.fields['date_of_birth'].initial = profile.date_of_birth
-        self.user_instance = user
-        self.profile_instance = profile
+        
+        # If we have a user, set initial values
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
 
-    def save(self):
-        # Save to MyUser
-        user = self.user_instance
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        user.email = self.cleaned_data['email']
-        user.save()
-        # Save to PersonalProfile
-        profile = self.profile_instance
-        profile.phone = self.cleaned_data['phone']
-        profile.city = self.cleaned_data['city']
-        profile.gender = self.cleaned_data['gender']
-        profile.location = self.cleaned_data['location']
-        profile.date_of_birth = self.cleaned_data['date_of_birth']
-        profile.save()
-        return user, profile
+    def save(self, commit=True):
+        # Get the profile instance from the form
+        profile = super().save(commit=False)
+        
+        # Update user fields if we have a user
+        if hasattr(self, 'user') and self.user:
+            self.user.first_name = self.cleaned_data.get('first_name', '')
+            self.user.last_name = self.cleaned_data.get('last_name', '')
+            if commit:
+                self.user.save()
+        
+        # Save the profile if commit is True
+        if commit:
+            profile.save()
+            
+        return profile
 

@@ -19,9 +19,18 @@
 </head>
 <body class="bg-gray-900 text-gray-100">
   <!-- Navbar -->
-  <nav class="fixed top-0 left-0 w-full z-50 bg-gray-950 bg-opacity-90 border-b border-gray-800">
+  <!-- Mobile Menu Button (Hamburger) -->
+  <div class="md:hidden fixed top-3 right-4 z-50">
+    <button id="mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none">
+      <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="fixed top-0 left-0 w-full z-40 bg-gray-950 bg-opacity-90 border-b border-gray-800 backdrop-blur-sm">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-      <a href="#home" class="flex items-center gap-2 text-blue-500 font-bold text-2xl">
+      <a href="#home" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-bold text-xl sm:text-2xl transition-colors">
         <i class="bi bi-shield-check"></i> AirBnBSec
       </a>
       <div class="hidden md:flex gap-2 items-center">
@@ -49,7 +58,7 @@
               <a href="{% url 'home:incident_list' %}" class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-blue-900/30 transition">
                 <i class="bi bi-list-ul text-green-400"></i>All Incidents
               </a>
-              <a href="{% url 'home:incident_create' %}" class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-blue-900/30 transition">
+              <a href="{% url 'home:incident_create_step1' %}" class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-blue-900/30 transition">
                 <i class="bi bi-plus-circle text-red-400"></i>Report Incident
               </a>
             </div>
@@ -74,7 +83,44 @@
       </div>
     </div>
   </nav>
-  <main class="pt-24">
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden fixed inset-0 bg-gray-900 bg-opacity-95 z-30 pt-20 px-4 transform translate-x-full transition-transform duration-300 ease-in-out">
+    <div class="flex flex-col space-y-2">
+      <a href="#home" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-house mr-2"></i> Home
+      </a>
+      <a href="#about" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-info-circle mr-2"></i> About
+      </a>
+      <a href="#services" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-shield-check mr-2"></i> Features
+      </a>
+      <div class="border-t border-gray-800 my-2"></div>
+      <a href="{% url 'home:incident_dashboard' %}" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-speedometer2 text-blue-400 mr-2"></i> Dashboard
+      </a>
+      <a href="{% url 'home:incident_list' %}" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-list-ul text-green-400 mr-2"></i> All Incidents
+      </a>
+      <a href="{% url 'home:incident_create_step1' %}" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-plus-circle text-red-400 mr-2"></i> Report Incident
+      </a>
+      <div class="border-t border-gray-800 my-2"></div>
+      <a href="#testimonials" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-star mr-2"></i> Reviews
+      </a>
+      <a href="#footer" class="block px-4 py-3 text-lg text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors">
+        <i class="bi bi-envelope mr-2"></i> Contact
+      </a>
+      <div class="px-4 py-3">
+        <a href="{% url 'register' %}" class="block w-full text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-colors">
+          Get Started
+        </a>
+      </div>
+    </div>
+  </div>
+  <main class="pt-16">
     <!-- Hero Section -->
     <section id="home" class="min-h-screen flex items-center bg-gradient-to-br from-gray-950 via-gray-900 to-blue-900 py-16">
       <div class="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center gap-12 px-4">
@@ -92,7 +138,7 @@
             <a href="{% url 'register' %}" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-green-400 text-white font-semibold rounded-lg shadow hover:from-blue-600 hover:to-green-500 transition">
               <i class="bi bi-person-plus mr-2"></i>Get Started
             </a>
-            <a href="{% url 'home:incident_create' %}" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-red-500 to-orange-400 text-white font-semibold rounded-lg shadow hover:from-red-600 hover:to-orange-500 transition">
+            <a href="{% url 'home:incident_create_step1' %}" class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-red-500 to-orange-400 text-white font-semibold rounded-lg shadow hover:from-red-600 hover:to-orange-500 transition">
               <i class="bi bi-exclamation-triangle mr-2"></i>Report Incident
             </a>
             <a href="{% url 'login' %}" class="inline-flex items-center justify-center px-8 py-3 border border-blue-500 text-blue-400 font-semibold rounded-lg hover:bg-blue-900/20 transition">
@@ -202,7 +248,7 @@
             </div>
             <h3 class="text-xl font-semibold mb-4">Report Incident</h3>
             <p class="text-gray-400 mb-6">Quickly report security incidents, property damage, or suspicious activities for immediate investigation.</p>
-            <a href="{% url 'home:incident_create' %}" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-500 to-orange-400 text-white font-semibold rounded-lg hover:from-red-600 hover:to-orange-500 transition">
+            <a href="{% url 'home:incident_create_step1' %}" class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-red-500 to-orange-400 text-white font-semibold rounded-lg hover:from-red-600 hover:to-orange-500 transition">
               <i class="bi bi-plus-circle mr-2"></i>Report Now
             </a>
           </div>
@@ -221,56 +267,68 @@
     </section>
     
     <!-- About Section -->
-    <section id="about" class="py-16 bg-gray-950">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl md:text-4xl font-bold mb-2">About AirBnBSec</h2>
+    <section id="about" class="py-12 sm:py-16 bg-gray-950 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10 sm:mb-12">
+          <h2 class="text-3xl sm:text-4xl font-bold mb-2">About AirBnBSec</h2>
           <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-green-400 mx-auto mb-4 rounded"></div>
-                            </div>
-        <div class="flex flex-col md:flex-row items-center gap-12 mb-12">
-          <div class="flex-1">
-            <h3 class="text-2xl font-semibold mb-4 text-blue-400">Who Are We?</h3>
-            <p class="text-gray-300 mb-6">AirBnBSec is a cutting-edge security platform dedicated to protecting rental properties and ensuring safe transactions for hosts and guests. Our advanced verification and monitoring systems provide peace of mind for property owners worldwide.</p>
-            <div class="flex gap-8">
-              <div class="bg-gray-800 rounded-xl p-6 text-center flex-1">
-                <div class="text-2xl font-bold text-blue-400 mb-1">10,000+</div>
-                <div class="text-gray-400 text-sm">Secured Properties</div>
-                        </div>
-              <div class="bg-gray-800 rounded-xl p-6 text-center flex-1">
-                <div class="text-2xl font-bold text-green-400 mb-1">99.8%</div>
-                <div class="text-gray-400 text-sm">Security Success Rate</div>
-                    </div>
-              <div class="bg-gray-800 rounded-xl p-6 text-center flex-1">
-                <div class="text-2xl font-bold text-yellow-400 mb-1">24/7</div>
-                <div class="text-gray-400 text-sm">Monitoring & Support</div>
-                </div>
-            </div>
         </div>
-          <div class="flex-1 grid gap-8">
-            <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg">
-              <div class="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-green-400 mb-4">
-                <i class="bi bi-robot text-2xl text-white"></i>
-                    </div>
-              <h4 class="text-lg font-semibold mb-2">AI-Powered Security</h4>
-              <p class="text-gray-400">Advanced machine learning algorithms that continuously learn and adapt to new security threats and patterns.</p>
+        
+        <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          <!-- Left Column -->
+          <div class="w-full lg:w-1/2">
+            <div class="mb-8 lg:mb-0">
+              <h3 class="text-2xl font-semibold mb-4 text-blue-400">Who Are We?</h3>
+              <p class="text-gray-300 mb-6 sm:mb-8">AirBnBSec is a cutting-edge security platform dedicated to protecting rental properties and ensuring safe transactions for hosts and guests. Our advanced verification and monitoring systems provide peace of mind for property owners worldwide.</p>
+              
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div class="bg-gray-800 rounded-xl p-4 sm:p-6 text-center">
+                  <div class="text-xl sm:text-2xl font-bold text-blue-400 mb-1">10,000+</div>
+                  <div class="text-xs sm:text-sm text-gray-400">Secured Properties</div>
                 </div>
-            <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg">
-              <div class="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-green-400 mb-4">
-                <i class="bi bi-graph-up-arrow text-2xl text-white"></i>
-                    </div>
-              <h4 class="text-lg font-semibold mb-2">Real-time Analytics</h4>
-              <p class="text-gray-400">Comprehensive security dashboards and reports that provide instant insights into property safety and guest verification status.</p>
+                <div class="bg-gray-800 rounded-xl p-4 sm:p-6 text-center">
+                  <div class="text-xl sm:text-2xl font-bold text-green-400 mb-1">99.8%</div>
+                  <div class="text-xs sm:text-sm text-gray-400">Success Rate</div>
                 </div>
-            <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg">
-              <div class="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-green-400 mb-4">
-                <i class="bi bi-shield-lock text-2xl text-white"></i>
-                    </div>
-              <h4 class="text-lg font-semibold mb-2">Secure & Reliable</h4>
-              <p class="text-gray-400">Bank-level encryption and security protocols ensure your data and property information remains completely protected.</p>
-                    </div>
+                <div class="bg-gray-800 rounded-xl p-4 sm:p-6 text-center col-span-2 sm:col-span-1">
+                  <div class="text-xl sm:text-2xl font-bold text-yellow-400 mb-1">24/7</div>
+                  <div class="text-xs sm:text-sm text-gray-400">Monitoring & Support</div>
                 </div>
+              </div>
             </div>
+          </div>
+          
+          <!-- Right Column -->
+          <div class="w-full lg:w-1/2">
+            <div class="space-y-6 sm:space-y-8">
+              <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-green-400 mb-4">
+                  <i class="bi bi-robot text-xl sm:text-2xl text-white"></i>
+                </div>
+                <h4 class="text-lg font-semibold mb-2">AI-Powered Security</h4>
+                <p class="text-sm sm:text-base text-gray-400">Advanced machine learning algorithms that continuously learn and adapt to new security threats and patterns.</p>
+              </div>
+              
+              <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-green-400 mb-4">
+                  <i class="bi bi-graph-up-arrow text-xl sm:text-2xl text-white"></i>
+                </div>
+                <h4 class="text-lg font-semibold mb-2">Real-time Analytics</h4>
+                <p class="text-sm sm:text-base text-gray-400">Comprehensive security dashboards and reports that provide instant insights into property safety and guest verification status.</p>
+              </div>
+              
+              <div class="bg-gray-800 rounded-xl p-6 flex flex-col items-center text-center shadow-lg">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-green-400 mb-4">
+                  <i class="bi bi-shield-lock text-xl sm:text-2xl text-white"></i>
+                </div>
+                <h4 class="text-lg font-semibold mb-2">Secure & Reliable</h4>
+                <p class="text-sm sm:text-base text-gray-400">Bank-level encryption and security protocols ensure your data and property information remains completely protected.</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </section>
     </section>
     <!-- Programs Section -->
     <section class="py-16 bg-gray-900">
@@ -381,58 +439,190 @@
         </div>
     </section>
     <!-- Footer -->
-    <footer class="bg-gray-950 pt-16 pb-8" id="footer">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="grid md:grid-cols-4 gap-8 mb-12">
-          <div>
+    <footer class="bg-gray-950 pt-12 pb-8" id="footer">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+          <!-- Company Info -->
+          <div class="text-center sm:text-left">
             <h3 class="text-2xl font-bold text-blue-400 mb-4">AirBnBSec</h3>
-            <p class="text-gray-400 mb-4">Securing rental properties worldwide with advanced verification and monitoring technology for peace of mind.</p>
-            <div class="flex gap-4">
-              <a href="#" class="text-gray-400 hover:text-blue-400 text-xl"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="text-gray-400 hover:text-blue-400 text-xl"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="text-gray-400 hover:text-blue-400 text-xl"><i class="bi bi-linkedin"></i></a>
-              <a href="#" class="text-gray-400 hover:text-blue-400 text-xl"><i class="bi bi-instagram"></i></a>
+            <p class="text-gray-400 mb-6 text-sm sm:text-base">Securing rental properties worldwide with advanced verification and monitoring technology for peace of mind.</p>
+            <div class="flex justify-center sm:justify-start gap-4">
+              <a href="#" aria-label="Facebook" class="text-gray-400 hover:text-blue-400 text-xl transition-colors">
+                <i class="bi bi-facebook"></i>
+              </a>
+              <a href="#" aria-label="Twitter" class="text-gray-400 hover:text-blue-400 text-xl transition-colors">
+                <i class="bi bi-twitter"></i>
+              </a>
+              <a href="#" aria-label="LinkedIn" class="text-gray-400 hover:text-blue-400 text-xl transition-colors">
+                <i class="bi bi-linkedin"></i>
+              </a>
+              <a href="#" aria-label="Instagram" class="text-gray-400 hover:text-blue-400 text-xl transition-colors">
+                <i class="bi bi-instagram"></i>
+              </a>
             </div>
-                </div>
-          <div>
-            <h4 class="text-lg font-semibold mb-4">Security Services</h4>
-            <ul class="space-y-2">
-              <li><a href="#home" class="hover:text-blue-400 transition">Home</a></li>
-              <li><a href="#about" class="hover:text-blue-400 transition">About</a></li>
-              <li><a href="#services" class="hover:text-blue-400 transition">Security Features</a></li>
-              <li><a href="#testimonials" class="hover:text-blue-400 transition">Client Reviews</a></li>
-              <li><a href="#partners" class="hover:text-blue-400 transition">Partners</a></li>
-              <li><a href="{% url 'register' %}" class="hover:text-blue-400 transition">Get Started</a></li>
-                    </ul>
-                </div>
-          <div>
-            <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
-            <ul class="space-y-2 text-gray-400">
-              <li class="flex items-center gap-2"><i class="bi bi-geo-alt"></i> <span>Global</span></li>
-              <li class="flex items-center gap-2"><i class="bi bi-telephone"></i> <a href="tel:+1234567890" class="hover:text-blue-400 transition">+1 234 567 890</a></li>
-              <li class="flex items-center gap-2"><i class="bi bi-envelope"></i> <a href="mailto:support@airbnbsec.com" class="hover:text-blue-400 transition">support@airbnbsec.com</a></li>
-                    </ul>
-                </div>
-          <div>
-            <h4 class="text-lg font-semibold mb-4">Security Alerts</h4>
-            <p class="text-gray-400 mb-4">Get the latest security updates, threat alerts, and best practices for property protection.</p>
-            <form class="flex gap-2">
-              <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <button type="submit" class="px-4 py-2 rounded bg-gradient-to-r from-blue-500 to-green-400 text-white font-semibold">Subscribe</button>
-            </form>
-                </div>
-            </div>
-        <div class="border-t border-gray-800 pt-6 text-center text-gray-400 text-sm">
-          <p>&copy; 2024 AirBnBSec. All rights reserved.</p>
-          <div class="flex flex-wrap justify-center gap-4 mt-2 max-w-full">
-            <a href="#" class="hover:text-blue-400 transition whitespace-nowrap">Privacy Policy</a>
-            <a href="#" class="hover:text-blue-400 transition whitespace-nowrap">Terms of Service</a>
-            <a href="#" class="hover:text-blue-400 transition whitespace-nowrap">Security Guidelines</a>
-            <a href="#" class="hover:text-blue-400 transition whitespace-nowrap">Data Protection</a>
           </div>
-            </div>
+          
+          <!-- Quick Links -->
+          <div class="text-center sm:text-left">
+            <h4 class="text-lg font-semibold mb-4 text-white">Security Services</h4>
+            <ul class="space-y-3">
+              <li><a href="#home" class="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block">Home</a></li>
+              <li><a href="#about" class="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block">About</a></li>
+              <li><a href="#services" class="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block">Security Features</a></li>
+              <li><a href="#testimonials" class="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block">Client Reviews</a></li>
+              <li><a href="#partners" class="text-gray-400 hover:text-blue-400 transition-colors text-sm sm:text-base block">Partners</a></li>
+              <li><a href="{% url 'register' %}" class="text-blue-400 hover:text-blue-300 font-medium transition-colors text-sm sm:text-base block">Get Started</a></li>
+            </ul>
+          </div>
+          
+          <!-- Contact Info -->
+          <div class="text-center sm:text-left">
+            <h4 class="text-lg font-semibold mb-4 text-white">Contact Us</h4>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-2 text-gray-400 text-sm sm:text-base justify-center sm:justify-start">
+                <i class="bi bi-geo-alt text-blue-400"></i>
+                <span>Global</span>
+              </li>
+              <li class="flex items-center gap-2 text-gray-400 text-sm sm:text-base justify-center sm:justify-start">
+                <i class="bi bi-telephone text-blue-400"></i>
+                <a href="tel:+254742134431" class="hover:text-blue-400 transition-colors">+254 742 134 431</a>
+              </li>
+              <li class="flex items-center gap-2 text-gray-400 text-sm sm:text-base justify-center sm:justify-start">
+                <i class="bi bi-envelope text-blue-400"></i>
+                <a href="mailto:support@airbnbsec.com" class="hover:text-blue-400 transition-colors">support@airbnbsec.com</a>
+              </li>
+            </ul>
+          </div>
+          
+          <!-- Newsletter -->
+          <div class="text-center sm:text-left">
+            <h4 class="text-lg font-semibold mb-4 text-white">Security Alerts</h4>
+            <p class="text-gray-400 mb-4 text-sm sm:text-base">Get the latest security updates, threat alerts, and best practices for property protection.</p>
+            <form class="flex flex-col sm:flex-row gap-2">
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                class="px-4 py-2 rounded bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                aria-label="Email address for newsletter"
+                required
+              >
+              <button 
+                type="submit" 
+                class="px-4 py-2 rounded bg-gradient-to-r from-blue-500 to-green-400 text-white font-semibold hover:from-blue-600 hover:to-green-500 transition-colors text-sm sm:text-base whitespace-nowrap"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
         </div>
+        
+        <!-- Copyright -->
+        <div class="border-t border-gray-800 pt-6">
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-gray-400 text-xs sm:text-sm">&copy; 2024 AirBnBSec. All rights reserved.</p>
+            <div class="flex flex-wrap justify-center gap-3 sm:gap-4">
+              <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors text-xs sm:text-sm whitespace-nowrap">Privacy Policy</a>
+              <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors text-xs sm:text-sm whitespace-nowrap">Terms of Service</a>
+              <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors text-xs sm:text-sm whitespace-nowrap">Security Guidelines</a>
+              <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors text-xs sm:text-sm whitespace-nowrap">Data Protection</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
   </main>
+  
+  <!-- Initialize Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Mobile menu functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function(e) {
+          e.stopPropagation(); // Prevent event bubbling
+          mobileMenu.classList.toggle('translate-x-full');
+          mobileMenu.classList.toggle('translate-x-0');
+          document.body.style.overflow = mobileMenu.classList.contains('translate-x-0') ? 'hidden' : 'auto';
+        });
+        
+        // Close menu when clicking on a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+            mobileMenu.classList.remove('translate-x-0');
+            document.body.style.overflow = 'auto';
+          });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+            mobileMenu.classList.add('translate-x-full');
+            mobileMenu.classList.remove('translate-x-0');
+            document.body.style.overflow = 'auto';
+          }
+        });
+      }
+      
+      // Close menu on window resize (if it becomes desktop view)
+      function handleResize() {
+        if (window.innerWidth >= 768) { // md breakpoint
+          if (mobileMenu) {
+            mobileMenu.classList.add('translate-x-full');
+            mobileMenu.classList.remove('translate-x-0');
+            document.body.style.overflow = 'auto';
+          }
+        }
+      }
+      
+      window.addEventListener('resize', handleResize);
+      
+      // Initialize dropdown functionality
+      // Get all dropdown buttons
+      const dropdownButtons = document.querySelectorAll('.group > button');
+      
+      // Add click event listeners to each dropdown button
+      dropdownButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          // Toggle the dropdown menu
+          const dropdown = this.nextElementSibling;
+          if (dropdown) {
+            dropdown.classList.toggle('opacity-0');
+            dropdown.classList.toggle('invisible');
+            dropdown.classList.toggle('opacity-100');
+            dropdown.classList.toggle('visible');
+            
+            // Toggle the chevron icon
+            const chevron = this.querySelector('.bi-chevron-down');
+            if (chevron) {
+              chevron.classList.toggle('rotate-180');
+            }
+          }
+        });
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.group')) {
+          document.querySelectorAll('.group .absolute').forEach(dropdown => {
+            dropdown.classList.add('opacity-0', 'invisible');
+            dropdown.classList.remove('opacity-100', 'visible');
+          });
+          
+          // Reset all chevron icons
+          document.querySelectorAll('.bi-chevron-down').forEach(chevron => {
+            chevron.classList.remove('rotate-180');
+          });
+        }
+      });
+    });
+  </script>
 </body>
-</html> 
+</html>

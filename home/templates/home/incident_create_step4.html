@@ -1,0 +1,452 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load form_filters %}
+
+{% block title %}Step 4: Client Information - AirBnBSec{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Custom styles -->
+<style>
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #f8fafc;
+    }
+    
+    /* Form container */
+    .form-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    }
+    
+    /* Progress indicator */
+    .progress-container {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-step {
+        display: flex;
+        align-items: center;
+        margin: 0 1rem;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .step-circle.active {
+        background: #6366f1;
+        color: white;
+    }
+    
+    .step-circle.completed {
+        background: #10b981;
+        color: white;
+    }
+    
+    .step-circle.pending {
+        background: #475569;
+        color: #94a3b8;
+    }
+    
+    .step-label {
+        font-size: 0.875rem;
+        color: #e2e8f0;
+    }
+    
+    .step-connector {
+        width: 60px;
+        height: 2px;
+        background: #475569;
+        margin: 0 0.5rem;
+    }
+    
+    .step-connector.completed {
+        background: #10b981;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .form-title {
+        color: #f8fafc;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-subtitle {
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+    
+    /* Summary section */
+    .summary-section {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .summary-title {
+        color: #e2e8f0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .summary-item {
+        padding: 0.75rem;
+        background: rgba(15, 23, 42, 0.3);
+        border-radius: 0.375rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .summary-label {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .summary-value {
+        color: #e2e8f0;
+        font-size: 0.95rem;
+    }
+    
+    /* Form groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #e2e8f0;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #e2e8f0;
+        background-color: #1e293b;
+        border: 1px solid #475569;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .form-control:focus {
+        border-color: #818cf8;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+    }
+    
+    .help-text {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .error-message {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Form rows */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Form actions */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        text-align: center;
+        font-size: 1rem;
+        line-height: 1.5;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        background-color: #4f46e5;
+        color: white;
+        border: 1px solid #4f46e5;
+    }
+    
+    .btn-primary:hover {
+        background-color: #4338ca;
+        border-color: #4338ca;
+    }
+    
+    .btn-success {
+        background-color: #10b981;
+        color: white;
+        border: 1px solid #10b981;
+    }
+    
+    .btn-success:hover {
+        background-color: #059669;
+        border-color: #059669;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #4f46e5;
+        color: #4f46e5;
+    }
+    
+    .btn-outline:hover {
+        background-color: rgba(79, 70, 229, 0.1);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+        
+        .progress-steps {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .step-connector {
+            display: none;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center w-full py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 to-slate-800">
+    <div class="form-container">
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-step">
+                    <div class="step-circle completed">1</div>
+                    <span class="step-label">Incident Info</span>
+                </div>
+                <div class="step-connector completed"></div>
+                <div class="progress-step">
+                    <div class="step-circle completed">2</div>
+                    <span class="step-label">Date & Time</span>
+                </div>
+                <div class="step-connector completed"></div>
+                <div class="progress-step">
+                    <div class="step-circle completed">3</div>
+                    <span class="step-label">Additional Details</span>
+                </div>
+                <div class="step-connector completed"></div>
+                <div class="progress-step">
+                    <div class="step-circle active">4</div>
+                    <span class="step-label">Client Information</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-header">
+            <h1 class="form-title">Step 4: Client Information</h1>
+            <p class="form-subtitle">Enter client details involved in this incident (optional)</p>
+        </div>
+        
+        <!-- Summary of Previous Steps -->
+        <div class="summary-section">
+            <div class="summary-title">
+                <i class="bi bi-check-circle-fill mr-2 text-green-500"></i>
+                Previous Steps Summary
+            </div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Title</div>
+                    <div class="summary-value">{{ step1_data.title }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Type</div>
+                    <div class="summary-value">{{ step1_data.incident_type|get_choice_display:incident_types }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Severity</div>
+                    <div class="summary-value">{{ step1_data.severity|get_choice_display:severity_levels }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Date & Time</div>
+                    <div class="summary-value">{{ step2_data.incident_date|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <!-- Client First Name -->
+                <div class="form-group">
+                    <label for="{{ form.client_first_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person-fill mr-2"></i>{{ form.client_first_name.label }}
+                    </label>
+                    {{ form.client_first_name|add_class:"form-control" }}
+                    {% if form.client_first_name.help_text %}
+                        <div class="help-text">{{ form.client_first_name.help_text }}</div>
+                    {% endif %}
+                    {% if form.client_first_name.errors %}
+                        <div class="error-message">{{ form.client_first_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Client Last Name -->
+                <div class="form-group">
+                    <label for="{{ form.client_last_name.id_for_label }}" class="form-label">
+                        <i class="bi bi-person-fill mr-2"></i>{{ form.client_last_name.label }}
+                    </label>
+                    {{ form.client_last_name|add_class:"form-control" }}
+                    {% if form.client_last_name.help_text %}
+                        <div class="help-text">{{ form.client_last_name.help_text }}</div>
+                    {% endif %}
+                    {% if form.client_last_name.errors %}
+                        <div class="error-message">{{ form.client_last_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Client ID Number -->
+            <div class="form-group">
+                <label for="{{ form.client_id_number.id_for_label }}" class="form-label">
+                    <i class="bi bi-card-text mr-2"></i>{{ form.client_id_number.label }}
+                </label>
+                {{ form.client_id_number|add_class:"form-control" }}
+                {% if form.client_id_number.help_text %}
+                    <div class="help-text">{{ form.client_id_number.help_text }}</div>
+                {% endif %}
+                {% if form.client_id_number.errors %}
+                    <div class="error-message">{{ form.client_id_number.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                <!-- Client Email -->
+                <div class="form-group">
+                    <label for="{{ form.client_email.id_for_label }}" class="form-label">
+                        <i class="bi bi-envelope-fill mr-2"></i>{{ form.client_email.label }}
+                    </label>
+                    {{ form.client_email|add_class:"form-control" }}
+                    {% if form.client_email.help_text %}
+                        <div class="help-text">{{ form.client_email.help_text }}</div>
+                    {% endif %}
+                    {% if form.client_email.errors %}
+                        <div class="error-message">{{ form.client_email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Client Phone -->
+                <div class="form-group">
+                    <label for="{{ form.client_phone.id_for_label }}" class="form-label">
+                        <i class="bi bi-telephone-fill mr-2"></i>{{ form.client_phone.label }}
+                    </label>
+                    {{ form.client_phone|add_class:"form-control" }}
+                    {% if form.client_phone.help_text %}
+                        <div class="help-text">{{ form.client_phone.help_text }}</div>
+                    {% endif %}
+                    {% if form.client_phone.errors %}
+                        <div class="error-message">{{ form.client_phone.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'home:incident_create_step3' %}" class="btn btn-outline">
+                    <i class="bi bi-arrow-left mr-2"></i>Previous Step
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-lg mr-2"></i>Create Incident
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+

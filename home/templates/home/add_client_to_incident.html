@@ -1,0 +1,426 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Add Client to Incident - {{ incident.incident_id }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-100">
+                <i class="bi bi-person-plus-fill mr-2 text-blue-400"></i>
+                Add Client to Incident #{{ incident.incident_id }}
+            </h1>
+            <a href="{% url 'home:incident_detail' pk=incident.pk %}" 
+               class="text-gray-400 hover:text-white transition-colors">
+                <i class="bi bi-x-lg text-xl"></i>
+            </a>
+        </div>
+
+        <div class="bg-gray-700 rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-200 mb-4">Incident Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+                <div>
+                    <p class="text-sm text-gray-400">Title</p>
+                    <p class="font-medium">{{ incident.title }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400">Incident Type</p>
+                    <p class="font-medium">{{ incident.get_incident_type_display }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400">Date</p>
+                    <p class="font-medium">{{ incident.incident_date|date:"M d, Y H:i" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400">Status</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                        {% if incident.status == 'open' %}bg-green-100 text-green-800
+                        {% elif incident.status == 'closed' %}bg-gray-100 text-gray-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ incident.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-700 rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-200 mb-6">
+                    <i class="bi bi-search mr-2 text-blue-400"></i>Find Client by ID
+            </h2>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-6 p-4 rounded-md {% if message.tags %}{{ message.tags }}{% endif %} 
+                        {% if 'error' in message.tags %}bg-red-900/30 border border-red-700 text-red-200
+                        {% else %}bg-blue-900/30 border border-blue-700 text-blue-200{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% if not result %}
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                <div class="bg-gray-800 p-4 rounded-lg mb-6">
+                    <h3 class="text-lg font-medium text-white mb-3">Identification Type</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="radio" name="user_type" value="citizen" class="form-radio" {% if user_type|default:'citizen' == 'citizen' %}checked{% endif %}>
+                            <span class="ml-2 text-gray-300">Citizen</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="user_type" value="alien" class="form-radio" {% if user_type == 'alien' %}checked{% endif %}>
+                            <span class="ml-2 text-gray-300">Alien</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="user_type" value="kra" class="form-radio" {% if user_type == 'kra' %}checked{% endif %}>
+                            <span class="ml-2 text-gray-300">KRA PIN</span>
+                        </label>
+                    </div>
+                </div>
+                        <div>
+                    <label for="id_number" class="form-label">ID/Passport/KRA PIN</label>
+                    <div class="input-group">
+                        <i class="bi bi-credit-card input-icon"></i>
+                        <input type="text" id="id_number" name="id_number" class="form-input" value="{{ id_number|default:'' }}" required>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-600">
+                    <a href="{% url 'home:incident_detail' pk=incident.pk %}" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search mr-2"></i>
+                        Search
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+
+            {% if result %}
+                <div class="mt-6">
+                    {% if result.found %}
+                        <div class="bg-green-900/30 border border-green-700 rounded p-4">
+                            <p class="text-green-200"><strong>Name:</strong> {{ result.name }}</p>
+                            <p class="text-green-200"><strong>ID:</strong> {{ result.id_number }}</p>
+                            <p class="text-green-200"><strong>Phone:</strong> {{ result.phone|default:'-' }}</p>
+                            <p class="text-green-200"><strong>Email:</strong> {{ result.email|default:'-' }}</p>
+                        </div>
+                        {% if not alias_mode %}
+                        <form method="post" class="mt-4 flex items-center space-x-3">
+                            {% csrf_token %}
+                            <input type="hidden" name="id_number" value="{{ result.id_number }}">
+                            <input type="hidden" name="user_type" value="{{ user_type }}">
+                            <button name="action" value="confirm_yes" class="btn btn-primary">
+                                <i class="bi bi-check2-circle mr-2"></i>Yes, link this client
+                            </button>
+                            <button name="action" value="confirm_no" class="btn btn-outline">
+                                <i class="bi bi-x-circle mr-2"></i>No, different names
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% if alias_mode %}
+                        <div class="mt-4 bg-blue-900/20 border border-blue-700 rounded p-4">
+                            <p class="text-blue-200 mb-3">Enter the name as provided by the offender. This will be saved as an alias.</p>
+                            <form method="post" class="space-y-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="id_number" value="{{ result.id_number }}">
+                                <input type="hidden" name="user_type" value="{{ user_type }}">
+                                <input type="hidden" name="action" value="alias_submit">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="alias_first_name" class="form-label">Alias First Name</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-person input-icon"></i>
+                                            <input type="text" id="alias_first_name" name="alias_first_name" class="form-input" required>
+                        </div>
+                    </div>
+                                    <div>
+                                        <label for="alias_last_name" class="form-label">Alias Last Name (optional)</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-person input-icon"></i>
+                                            <input type="text" id="alias_last_name" name="alias_last_name" class="form-input">
+                </div>
+                            </div>
+                                    <div>
+                                        <label for="alias_phone" class="form-label">Phone (optional)</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-telephone input-icon"></i>
+                                            <input type="text" id="alias_phone" name="alias_phone" class="form-input" placeholder="e.g. +2547...">
+                        </div>
+                    </div>
+                        <div>
+                                        <label for="alias_email" class="form-label">Email (optional)</label>
+                                        <div class="input-group">
+                                            <i class="bi bi-envelope input-icon"></i>
+                                            <input type="email" id="alias_email" name="alias_email" class="form-input" placeholder="name@example.com">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-end space-x-3">
+                                    <a href="?" class="btn btn-outline">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save mr-2"></i>Save Alias & Link Client
+                                </button>
+                            </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        {% if kra_mode and result.kra %}
+                            <div class="bg-blue-900/30 border border-blue-700 rounded p-4 text-blue-200">
+                                <p class="mb-2"><strong>KRA First Name:</strong> {{ result.kra_first_name|default:'-' }}</p>
+                                <p class="mb-2"><strong>KRA Last Name:</strong> {{ result.kra_last_name|default:'-' }}</p>
+                                <p class="mb-2"><strong>KRA Surname:</strong> {{ result.kra_surname|default:'-' }}</p>
+                                <p class="mb-4">{{ result.message }}</p>
+                                <form method="post" class="flex items-center space-x-3">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id_number" value="{{ result.id_number }}">
+                                    <input type="hidden" name="user_type" value="{{ user_type }}">
+                                    <input type="hidden" name="kra_first_name" value="{{ result.kra_first_name }}">
+                                    <input type="hidden" name="kra_last_name" value="{{ result.kra_last_name }}">
+                                    <input type="hidden" name="kra_surname" value="{{ result.kra_surname }}">
+                                    <button name="action" value="kra_confirm_yes" class="btn btn-primary">
+                                        <i class="bi bi-check2-circle mr-2"></i>Yes, use these details
+                                    </button>
+                                    <button name="action" value="kra_confirm_no" class="btn btn-outline">
+                                        <i class="bi bi-x-circle mr-2"></i>No, enter different details
+                                    </button>
+                                </form>
+                            </div>
+                        {% elif manual_mode %}
+                            <div class="bg-yellow-900/30 border border-yellow-700 rounded p-4 text-yellow-100">
+                                <p class="mb-3">{{ manual_message|default:"If you are sure you verified the physical id before then the person lied about their names. Add the names he/she used " }}</p>
+                                <form method="post" class="space-y-4">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="manual_submit">
+                                    <input type="hidden" name="id_number" value="{{ id_number }}">
+                                    <input type="hidden" name="user_type" value="{{ user_type }}">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                                            <label for="manual_first_name" class="form-label">First Name</label>
+                            <div class="input-group">
+    <i class="bi bi-person input-icon"></i>
+                                                <input type="text" id="manual_first_name" name="manual_first_name" class="form-input">
+</div>
+                        </div>
+                        <div>
+                                            <label for="manual_last_name" class="form-label">Last Name</label>
+                            <div class="input-group">
+                                <i class="bi bi-person input-icon"></i>
+                                                <input type="text" id="manual_last_name" name="manual_last_name" class="form-input">
+                            </div>
+                        </div>
+                        <div>
+                                            <label for="manual_surname" class="form-label">Surname (optional)</label>
+                            <div class="input-group">
+                                                <i class="bi bi-person input-icon"></i>
+                                                <input type="text" id="manual_surname" name="manual_surname" class="form-input">
+                            </div>
+                        </div>
+                        <div>
+                                            <label for="manual_phone" class="form-label">Phone (optional)</label>
+                            <div class="input-group">
+                                <i class="bi bi-telephone input-icon"></i>
+                                                <input type="text" id="manual_phone" name="manual_phone" class="form-input" placeholder="e.g. +2547...">
+                        </div>
+                    </div>
+                                        <div>
+                                            <label for="manual_email" class="form-label">Email (optional)</label>
+                                            <div class="input-group">
+                                                <i class="bi bi-envelope input-icon"></i>
+                                                <input type="email" id="manual_email" name="manual_email" class="form-input" placeholder="name@example.com">
+                    </div>
+                </div>
+                                    </div>
+                                    <div class="flex items-center justify-end space-x-3">
+                                        <a href="?" class="btn btn-outline">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-save mr-2"></i>Create & Link Client
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="bg-red-900/30 border border-red-700 rounded p-4 text-red-200">
+                                {{ result.message }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form radio buttons */
+    .form-radio {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid #4b5563;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        cursor: pointer;
+        position: relative;
+        top: 0.25rem;
+    }
+    
+    .form-radio:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    
+    .form-radio:checked::after {
+        content: '';
+        position: absolute;
+        width: 0.5rem;
+        height: 0.5rem;
+        background: white;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    /* Form container */
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Form groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Labels */
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #e5e7eb;
+        font-size: 0.875rem;
+    }
+    
+    /* Input fields */
+    .form-input {
+        display: block;
+        width: 100%;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #f3f4f6;
+        background-color: #1f2937;
+        background-clip: padding-box;
+        border: 1px solid #374151;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .form-input:focus {
+        border-color: #3b82f6;
+        outline: 0;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+    
+    /* Error messages */
+    .errorlist {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #f87171;
+    }
+    
+    /* Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        transition: all 0.15s ease-in-out;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background-color: #2563eb;
+        color: white;
+        border: 1px solid transparent;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1d4ed8;
+    }
+    
+    /* Hide elements */
+    .hidden {
+        display: none !important;
+    }
+    
+    /* Verification result styles */
+    .verification-success {
+        color: #10b981;
+        font-size: 0.875rem;
+    }
+    
+    .verification-error {
+        color: #ef4444;
+        font-size: 0.875rem;
+    }
+    
+    /* Loading spinner */
+    .spinner {
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 0.5rem;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        color: #9ca3af;
+        border: 1px solid #4b5563;
+    }
+    
+    .btn-outline:hover {
+        color: #e5e7eb;
+        border-color: #6b7280;
+    }
+    
+    /* Input with icon */
+    .input-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        pointer-events: none;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .form-control {
+        padding-left: 2.75rem !important;
+        padding-right: 1rem;
+        height: 2.75rem;
+    }
+</style>
+{% endblock %}

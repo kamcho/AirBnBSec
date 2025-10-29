@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SecurityIncident, IncidentUpdate
+from .models import SecurityIncident, IncidentUpdate, IncidentEvidence
 
 @admin.register(SecurityIncident)
 class SecurityIncidentAdmin(admin.ModelAdmin):
@@ -30,7 +30,7 @@ class SecurityIncidentAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
-
+admin.site.register(IncidentEvidence)
 @admin.register(IncidentUpdate)
 class IncidentUpdateAdmin(admin.ModelAdmin):
     list_display = ['incident', 'update_type', 'description', 'created_at']

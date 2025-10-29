@@ -4,18 +4,18 @@
 {% block title %}Complete Your Profile - AirBnBSec{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md mx-auto">
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+  <div class="max-w-3xl mx-auto">
     <div class="text-center mb-8">
-      <h2 class="text-3xl font-extrabold text-gray-900">Complete Your Profile</h2>
-      <p class="mt-2 text-sm text-gray-600">
+      <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">Complete Your Profile</h2>
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
         Let's get to know you better. This information helps us personalize your experience.
       </p>
     </div>
 
-    <div class="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
+    <div class="bg-white dark:bg-gray-800 py-8 px-6 shadow rounded-lg sm:px-12 transition-colors duration-200">
       {% if form.errors %}
-        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+        <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 dark:border-red-600 p-4 mb-6">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -23,7 +23,7 @@
               </svg>
             </div>
             <div class="ml-3">
-              <p class="text-sm text-red-700">
+              <p class="text-sm text-red-700 dark:text-red-300">
                 Please correct the errors below.
               </p>
             </div>
@@ -35,98 +35,86 @@
         {% csrf_token %}
         
         <!-- Personal Information -->
-        <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="id_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+            <label for="id_first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">First Name</label>
             <div class="mt-1">
               <input type="text" name="first_name" id="id_first_name" 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                     class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-600 dark:focus:border-indigo-600 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                      value="{{ form.first_name.value|default:'' }}">
               {% if form.first_name.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors.0 }}</p>
               {% endif %}
             </div>
           </div>
 
           <div>
-            <label for="id_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+            <label for="id_last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Last Name</label>
             <div class="mt-1">
               <input type="text" name="last_name" id="id_last_name" 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                     class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-600 dark:focus:border-indigo-600 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                      value="{{ form.last_name.value|default:'' }}">
               {% if form.last_name.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors.0 }}</p>
               {% endif %}
             </div>
           </div>
 
           <div>
-            <label for="id_phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+            <label for="id_phone" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Phone Number</label>
             <div class="mt-1">
               <input type="tel" name="phone" id="id_phone" 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                     class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-600 dark:focus:border-indigo-600 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                      value="{{ form.phone.value|default:'' }}">
               {% if form.phone.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.phone.errors.0 }}</p>
               {% endif %}
             </div>
           </div>
 
-          <div>
-            <label for="id_date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-            <div class="mt-1">
-              <input type="date" name="date_of_birth" id="id_date_of_birth" 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                     value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}">
-              {% if form.date_of_birth.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.date_of_birth.errors.0 }}</p>
-              {% endif %}
-            </div>
-          </div>
-
-          <div>
-            <label for="id_gender" class="block text-sm font-medium text-gray-700">Gender</label>
+<div>
+            <label for="id_gender" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Gender</label>
             <div class="mt-1">
               <select name="gender" id="id_gender" 
-                      class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-600 dark:focus:border-indigo-600 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                 <option value="" {% if not form.gender.value %}selected{% endif %}>Select gender</option>
                 <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>Male</option>
                 <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>Female</option>
                 <option value="O" {% if form.gender.value == 'O' %}selected{% endif %}>Other</option>
               </select>
               {% if form.gender.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.gender.errors.0 }}</p>
               {% endif %}
             </div>
           </div>
 
           <div>
-            <label for="id_city" class="block text-sm font-medium text-gray-700">City</label>
+            <label for="id_city" class="block text-sm font-medium text-gray-700 dark:text-gray-200">City</label>
             <div class="mt-1">
               <input type="text" name="city" id="id_city" 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                     class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-600 dark:focus:border-indigo-600 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                      value="{{ form.city.value|default:'' }}">
               {% if form.city.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.city.errors.0 }}</p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.city.errors.0 }}</p>
               {% endif %}
             </div>
           </div>
 
           <div>
-            <label for="id_location" class="block text-sm font-medium text-gray-700">Location (Address)</label>
+            <label for="id_location" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Location (Address)</label>
             <div class="mt-1">
               <input type="text" name="location" id="id_location" 
-                     class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                     class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-600 dark:focus:border-indigo-600 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                      value="{{ form.location.value|default:'' }}">
               {% if form.location.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.location.errors.0 }}</p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.location.errors.0 }}</p>
               {% endif %}
             </div>
           </div>
         </div>
 
-        <div class="pt-4">
-          <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <div class="pt-4 col-span-2">
+          <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors duration-200">
             Complete Profile
           </button>
         </div>
@@ -134,4 +122,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}

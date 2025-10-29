@@ -1,0 +1,337 @@
+"""
+Simple WhatsApp Echo Handler
+Receives messages and echoes them back
+"""
+import os
+import json
+import requests
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from dotenv import load_dotenv
+from openai import OpenAI
+from .utils import verify_kra_details
+import re
+
+
+def extract_id_number(message):
+    """
+    Extract ID number from message
+    Returns the ID number or None
+    """
+    # Look for patterns like "A123456789X", "629383933", etc.
+    # KRA PIN format: Starts with letter, ends with letter, digits in between
+    kra_pattern = r'[A-Z]\d{9}[A-Z0-9]'
+    # National ID format: 8-10 digits
+    national_id_pattern = r'\d{7,10}'
+    
+    # Try KRA PIN first
+    match = re.search(kra_pattern, message)
+    if match:
+        print(f"📋 Extracted KRA PIN: {match.group()}")
+        return match.group()
+    
+    # Try National ID
+    match = re.search(national_id_pattern, message)
+    if match:
+        print(f"📋 Extracted ID: {match.group()}")
+        return match.group()
+    
+    print("⚠️ No ID number found in message")
+    return None
+
+
+def detect_intent(message):
+    """
+    Detect user intent from message using OpenAI
+    
+    Returns:
+        dict: {
+            'intent_id': str,  # e.g., 'verify', 'report', 'view', 'help', 'unknown'
+            'message': str      # Original message
+        }
+    """
+    try:
+        # Load environment
+        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+        if os.path.exists(env_path):
+            load_dotenv(dotenv_path=env_path, override=True)
+        
+        api_key = os.getenv('OPENAI_API_KEY')
+        
+        if not api_key:
+            print("⚠️ No OpenAI API key found, using fallback")
+            return {
+                'intent_id': 'unknown',
+                'message': message
+            }
+        
+        # Initialize OpenAI
+        client = OpenAI(api_key=api_key)
+        
+        # System prompt for intent detection
+        system_prompt = """You are an intent classifier for a security incident management system.
+
+Classify the user's message into one of these intents:
+- verify: User wants to verify/check someone (e.g., "verify KRA PIN", "check client")
+- report: User wants to report an incident or issue
+- view: User wants to view/list something (e.g., "show incidents", "list reports")
+- help: User is asking for help or information
+- unknown: Intent doesn't fit any category
+
+Return ONLY the intent ID, nothing else."""
+
+        # Call OpenAI
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message}
+            ],
+            temperature=0.1,
+            max_tokens=10
+        )
+        
+        intent_id = response.choices[0].message.content.strip().lower()
+        
+        # Validate intent_id
+        valid_intents = ['verify', 'report', 'view', 'help', 'unknown']
+        if intent_id not in valid_intents:
+            intent_id = 'unknown'
+        
+        print(f"🔍 OpenAI detected intent: {intent_id}")
+        
+        return {
+            'intent_id': intent_id,
+            'message': message
+        }
+        
+    except Exception as e:
+        print(f"❌ OpenAI Error: {e}")
+        # Fallback to simple detection
+        message_lower = message.lower()
+        if any(word in message_lower for word in ['verify', 'verification', 'check', 'validate']):
+            intent_id = 'verify'
+        elif any(word in message_lower for word in ['report', 'incident', 'issue', 'problem']):
+            intent_id = 'report'
+        elif any(word in message_lower for word in ['view', 'show', 'list', 'see', 'get']):
+            intent_id = 'view'
+        elif any(word in message_lower for word in ['help', 'how', 'what', 'info']):
+            intent_id = 'help'
+        else:
+            intent_id = 'unknown'
+        
+        return {
+            'intent_id': intent_id,
+            'message': message
+        }
+
+
+def send_message(to_phone, message):
+    """Send WhatsApp message"""
+    # Load env
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+    if os.path.exists(env_path):
+        load_dotenv(dotenv_path=env_path, override=True)
+    
+    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
+    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID', '104040046094231')
+    
+    if not access_token:
+        print("❌ No access token")
+        return {'success': False}
+    
+    url = f"https://graph.facebook.com/v22.0/{phone_number_id}/messages"
+    
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    
+    payload = {
+        'messaging_product': 'whatsapp',
+        'to': to_phone,
+        'type': 'text',
+        'text': {
+            'preview_url': False,
+            'body': message
+        }
+    }
+    
+    print(f"📤 Sending to {to_phone}: {message}")
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        print(f"📥 Status: {response.status_code}")
+        print(f"📥 Response: {response.text}")
+        
+        if response.status_code == 200:
+            return {'success': True}
+        else:
+            return {'success': False, 'error': response.text}
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return {'success': False, 'error': str(e)}
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def whatsapp_webhook(request):
+    """Webhook handler"""
+    
+    if request.method == 'GET':
+        # Webhook verification
+        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+        if os.path.exists(env_path):
+            load_dotenv(dotenv_path=env_path, override=True)
+        
+        verify_token = os.getenv('WHATSAPP_VERIFY_TOKEN', 'test123')
+        
+        mode = request.GET.get('hub.mode')
+        token = request.GET.get('hub.verify_token')
+        challenge = request.GET.get('hub.challenge')
+        
+        print("\n" + "=" * 70)
+        print("🔍 WEBHOOK VERIFICATION")
+        print(f"Mode: {mode}")
+        print(f"Token: {token}")
+        print(f"Expected: {verify_token}")
+        print(f"Match: {token == verify_token}")
+        print("=" * 70)
+        
+        if mode == 'subscribe' and token == verify_token:
+            print("✅ VERIFIED!")
+            return HttpResponse(challenge)
+        else:
+            print("❌ FAILED")
+            return HttpResponse('Verification failed', status=403)
+    
+    elif request.method == 'POST':
+        # Handle incoming messages
+        print("\n" + "=" * 70)
+        print("🔔 MESSAGE RECEIVED (POST)")
+        print("=" * 70)
+        print(f"Request body length: {len(request.body)}")
+        print(f"Content-Type: {request.content_type}")
+        
+        try:
+            body = json.loads(request.body)
+            print("\n📦 Full webhook payload:")
+            print(json.dumps(body, indent=2))
+            print("=" * 70)
+            
+            # Extract message
+            if 'entry' in body:
+                print("✅ Found 'entry' in body")
+                for entry in body['entry']:
+                    print(f"📂 Processing entry: {entry}")
+                    changes = entry.get('changes', [])
+                    print(f"📋 Found {len(changes)} changes")
+                    
+                    for change in changes:
+                        print(f"🔄 Change field: {change.get('field')}")
+                        if change.get('field') == 'messages':
+                            print("✅ Found messages field")
+                            value = change.get('value', {})
+                            print(f"📦 Value keys: {value.keys()}")
+                            
+                            if 'messages' in value:
+                                print(f"📨 Found {len(value.get('messages', []))} messages")
+                                for message in value['messages']:
+                                    message_text = message.get('text', {}).get('body', '')
+                                    sender_phone = message.get('from', '').replace('whatsapp:', '')
+                                    
+                                    print(f"\n📨 From: {sender_phone}")
+                                    print(f"📨 Message: {message_text}")
+                                    
+                                    # Detect intent
+                                    intent_result = detect_intent(message_text)
+                                    intent_id = intent_result['intent_id']
+                                    print(f"🎯 Intent ID: {intent_id}")
+                                    
+                                    # Handle verify intent
+                                    if intent_id == 'verify':
+                                        print("🔍 Processing verification request...")
+                                        
+                                        # Extract ID number
+                                        id_number = extract_id_number(message_text)
+                                        
+                                        if id_number:
+                                            print(f"📋 Verifying ID: {id_number}")
+                                            
+                                            # Call KRA verification
+                                            verification_result = verify_kra_details(id_number)
+                                            
+                                            if verification_result.get('success'):
+                                                verified_name = verification_result.get('data', {}).get('name', 'Unknown')
+                                                response_message = (
+                                                    "🔍 *Verification Result* 🔍\n\n"
+                                                    f"✅ *Verification Successful!*\n"
+                                                    f"📋 *Name:* {verified_name}\n"
+                                                    f"🆔 *ID Number:* {id_number}\n\n"
+                                                    "_If this does not match the person you're verifying, please report this incident immediately._\n\n"
+                                                    "⚠️ *Suspicious Activity?*\n"
+                                                    "If the verification details don't match the person's identification or if you suspect fraudulent activity, please report this incident at:\n"
+                                                    "https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n\n"
+                                                    "Your vigilance helps keep our community safe! 🛡️"
+                                                )
+                                                print(f"✅ Verified: {verified_name}")
+                                            else:
+                                                error_msg = verification_result.get('message', 'Verification failed')
+                                                response_message = (
+                                                    "❌ *Verification Failed*\n\n"
+                                                    f"We couldn't verify the provided ID: {id_number}\n\n"
+                                                    f"*Reason:* {error_msg}\n\n"
+                                                    "⚠️ *Next Steps:*\n"
+                                                    "1. Double-check the ID number for any typos\n"
+                                                    "2. If the ID is correct but verification fails, the person may be using invalid credentials\n\n"
+                                                    "*For your safety, we recommend:*\n"
+                                                    "• Do not proceed with any transactions\n"
+                                                    "• Report this incident at: https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n"
+                                                    "• Contact support if you need assistance"
+                                                )
+                                                print(f"❌ Verification failed: {error_msg}")
+                                        else:
+                                            response_message = "⚠️ Please provide an ID number to verify.\n\nExample: 'verify A123456789X'"
+                                            print("⚠️ No ID number found")
+                                    
+                                    elif intent_id == 'report':
+                                        response_message = (
+                                            "📝 *Report an Incident* 📝\n\n"
+                                            "To report a security incident, please visit our reporting portal and follow these steps:\n\n"
+                                            "1. *Access the Form*: Go to https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n"
+                                            "2. *Provide Details*: Fill in all required information about the incident\n"
+                                            "3. *Upload Evidence*: Attach any relevant photos, documents, or screenshots\n"
+                                            "4. *Submit Report*: Review and submit your report\n\n"
+                                            "ℹ️ *What to include in your report:*\n"
+                                            "• Date and time of the incident\n"
+                                            "• Location or property address\n"
+                                            "• Description of what happened\n"
+                                            "• Any involved parties' information\n\n"
+                                            "Your report helps us maintain a safe community. Thank you for your cooperation!"
+                                        )
+                                    else:
+                                        # Default response for other intents
+                                        response_message = f"Detected Intent: {intent_id}"
+                                    
+                                    print(f"💬 Sending response: {response_message}")
+                                    result = send_message(sender_phone, response_message)
+                                    
+                                    if result.get('success'):
+                                        print(f"✅ Response sent! (Intent: {intent_id})")
+                                    else:
+                                        print(f"❌ Failed: {result.get('error')}")
+                            else:
+                                print("❌ No 'messages' key in value")
+                        else:
+                            print(f"⚠️ Not a messages field: {change.get('field')}")
+            else:
+                print("❌ No 'entry' key in body")
+            
+            return JsonResponse({'status': 'ok'})
+        
+        except Exception as e:
+            print(f"❌ Error: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Bad request'}, status=400)
