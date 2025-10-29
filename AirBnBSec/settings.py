@@ -91,22 +91,44 @@ MPESA_API_TIMEOUT = 30
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# Security settings
-CSRF_TRUSTED_ORIGINS = [
-    'https://mybnbsecurity.pythonanywhere.com',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SECURE_SSL_REDIRECT = False  # Set to True in production with HTTPS
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-rv1#gugg$03ffallw!^$=+-#qlro+k(ak(k0q)8ubn(iq*9126'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Read from environment variables with defaults
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
+
+# Security settings
+CSRF_TRUSTED_ORIGINS = [
+    'https://mybnbsecurity.pythonanywhere.com',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
+# Security settings - different in development vs production
+if not DEBUG:
+    # HTTPS settings
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    
+    # HTTP Strict Transport Security
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # Additional security headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # For proxy/load balancer setups
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    # Development settings
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    SECURE_SSL_REDIRECT = False
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
