@@ -11,7 +11,13 @@ from django.views.decorators.http import require_http_methods
 from dotenv import load_dotenv
 from openai import OpenAI
 from .utils import verify_kra_details
+from home.models import SecurityIncident
+from users.models import Client
+from .models import VerificationRequest
 import re
+from django.urls import reverse
+from django.conf import settings
+from django.utils import timezone
 
 
 def extract_id_number(message):
@@ -259,16 +265,74 @@ def whatsapp_webhook(request):
                                         if id_number:
                                             print(f"📋 Verifying ID: {id_number}")
                                             
+                                            # Create verification request record
+                                            verification_request = VerificationRequest(
+                                                requester_phone=sender_phone,
+                                                id_number=id_number,
+                                                response_data={"initial_request": message_text},
+                                                source='whatsapp'
+                                            )
+                                            
                                             # Call KRA verification
                                             verification_result = verify_kra_details(id_number)
                                             
                                             if verification_result.get('success'):
                                                 verified_name = verification_result.get('data', {}).get('name', 'Unknown')
+                                                
+                                                # Update verification request with success data
+                                                verification_request.is_successful = True
+                                                verification_request.response_data.update({
+                                                    'verification_result': 'success',
+                                                    'verified_name': verified_name,
+                                                    'verification_data': verification_result.get('data', {})
+                                                })
+                                                verification_request.save()  # Save after updating with success data
+                                                
+                                                # Try to find and link client and incidents
+                                                try:
+                                                    client = Client.objects.get(id_number=id_number)
+                                                    verification_request.client = client
+                                                    
+                                                    # Find incidents involving this client
+                                                    incidents = SecurityIncident.objects.filter(
+                                                        client=client
+                                                    ).order_by('-reported_date')[:5]  # Get up to 5 most recent incidents
+                                                    
+                                                    if incidents.exists():
+                                                        # Add related incidents to the verification request
+                                                        verification_request.related_incidents.set(incidents)
+                                                        
+                                                        incidents_list = []
+                                                        base_url = getattr(settings, 'SITE_URL', 'https://arhythmically-unciliated-danna.ngrok-free.dev')
+                                                        
+                                                        for incident in incidents:
+                                                            incident_url = f"{base_url}{reverse('home:incident_detail', args=[incident.id])}"
+                                                            incidents_list.append(
+                                                                f"• [{incident.title}]({incident_url}) - {incident.get_status_display()}"
+                                                            )
+                                                        
+                                                        incidents_text = "\n".join(incidents_list)
+                                                        incident_heading = "\n\n⚠️ *Previous Incidents Involving This Client:*"
+                                                    else:
+                                                        incident_heading = "\n\n✅ No previous incidents found for this client."
+                                                        incidents_text = ""
+                                                    
+                                                    # Save the verification request with client and incidents
+                                                    verification_request.save()
+                                                        
+                                                except Client.DoesNotExist:
+                                                    incident_heading = "\n\nℹ️ No client profile found in our system."
+                                                    incidents_text = ""
+                                                    # Save the verification request even if no client is found
+                                                    verification_request.save()
+                                                
                                                 response_message = (
                                                     "🔍 *Verification Result* 🔍\n\n"
                                                     f"✅ *Verification Successful!*\n"
                                                     f"📋 *Name:* {verified_name}\n"
-                                                    f"🆔 *ID Number:* {id_number}\n\n"
+                                                    f"🆔 *ID Number:* {id_number}"
+                                                    f"{incident_heading}\n"
+                                                    f"{incidents_text}\n\n"
                                                     "_If this does not match the person you're verifying, please report this incident immediately._\n\n"
                                                     "⚠️ *Suspicious Activity?*\n"
                                                     "If the verification details don't match the person's identification or if you suspect fraudulent activity, please report this incident at:\n"
@@ -277,7 +341,16 @@ def whatsapp_webhook(request):
                                                 )
                                                 print(f"✅ Verified: {verified_name}")
                                             else:
+                                                # Update verification request with failure data
                                                 error_msg = verification_result.get('message', 'Verification failed')
+                                                verification_request.is_successful = False
+                                                verification_request.response_data.update({
+                                                    'verification_result': 'failed',
+                                                    'error': error_msg,
+                                                    'verification_data': verification_result
+                                                })
+                                                verification_request.save()
+                                                
                                                 response_message = (
                                                     "❌ *Verification Failed*\n\n"
                                                     f"We couldn't verify the provided ID: {id_number}\n\n"
@@ -292,6 +365,17 @@ def whatsapp_webhook(request):
                                                 )
                                                 print(f"❌ Verification failed: {error_msg}")
                                         else:
+                                            # Create a failed verification request for tracking
+                                            VerificationRequest.objects.create(
+                                                requester_phone=sender_phone,
+                                                id_number='',
+                                                is_successful=False,
+                                                response_data={
+                                                    'error': 'No valid ID number found',
+                                                    'original_message': message_text
+                                                },
+                                                source='whatsapp'
+                                            )
                                             response_message = "⚠️ Please provide an ID number to verify.\n\nExample: 'verify A123456789X'"
                                             print("⚠️ No ID number found")
                                     

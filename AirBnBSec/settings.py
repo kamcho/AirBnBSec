@@ -100,7 +100,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Security settings
 CSRF_TRUSTED_ORIGINS = [
-    'https://mybnbsecurity.pythonanywhere.com',
+    'https://arhythmically-unciliated-danna.ngrok-free.dev',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
