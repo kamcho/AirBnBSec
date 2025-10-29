@@ -33,7 +33,7 @@ __pycache__/
 **/__pycache__/
 *.py[cod]
 
-# Django migrations (ignore in all apps)
+# Django migrations (ignore in all apps)hjk
 **/migrations/
 **/migrations/__init__.py
 
