@@ -110,6 +110,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 ALLOWED_HOSTS = ['www.tourske.com','127.0.0.1','localhost','tourske.com','13.60.251.46']
 
+SECURE_SSL_REDIRECT = False
 
 # Application definition
 
