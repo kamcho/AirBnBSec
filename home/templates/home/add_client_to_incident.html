@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8 max-w-4xl">
-    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mx-auto max-w-2xl">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-100">
                 <i class="bi bi-person-plus-fill mr-2 text-blue-400"></i>
@@ -18,7 +18,7 @@
             </a>
         </div>
 
-        <div class="bg-gray-700 rounded-lg p-6 mb-6">
+        <div class="bg-gray-700 rounded-lg p-6 mb-6 mx-auto max-w-2xl">
             <h2 class="text-lg font-semibold text-gray-200 mb-4">Incident Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
                 <div>
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <div class="bg-gray-700 rounded-lg p-6">
+        <div class="bg-gray-700 rounded-lg p-6 mx-auto max-w-2xl">
             <h2 class="text-lg font-semibold text-gray-200 mb-6">
                     <i class="bi bi-search mr-2 text-blue-400"></i>Find Client by ID
             </h2>
@@ -87,9 +87,9 @@
                         <input type="text" id="id_number" name="id_number" class="form-input" value="{{ id_number|default:'' }}" required>
                     </div>
                 </div>
-                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-600">
-                    <a href="{% url 'home:incident_detail' pk=incident.pk %}" class="btn btn-outline">Cancel</a>
-                    <button type="submit" class="btn btn-primary">
+                <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-stretch sm:justify-end gap-3 sm:space-x-4 pt-6 border-t border-gray-600">
+                    <a href="{% url 'home:incident_detail' pk=incident.pk %}" class="btn btn-outline w-full sm:w-auto">Cancel</a>
+                    <button type="submit" class="btn btn-primary w-full sm:w-auto">
                         <i class="bi bi-search mr-2"></i>
                         Search
                         </button>
@@ -107,14 +107,14 @@
                             <p class="text-green-200"><strong>Email:</strong> {{ result.email|default:'-' }}</p>
                         </div>
                         {% if not alias_mode %}
-                        <form method="post" class="mt-4 flex items-center space-x-3">
+                        <form method="post" class="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-3">
                             {% csrf_token %}
                             <input type="hidden" name="id_number" value="{{ result.id_number }}">
                             <input type="hidden" name="user_type" value="{{ user_type }}">
-                            <button name="action" value="confirm_yes" class="btn btn-primary">
+                            <button name="action" value="confirm_yes" class="btn btn-primary w-full sm:w-auto">
                                 <i class="bi bi-check2-circle mr-2"></i>Yes, link this client
                             </button>
-                            <button name="action" value="confirm_no" class="btn btn-outline">
+                            <button name="action" value="confirm_no" class="btn btn-outline w-full sm:w-auto">
                                 <i class="bi bi-x-circle mr-2"></i>No, different names
                             </button>
                         </form>
@@ -157,9 +157,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-end space-x-3">
-                                    <a href="?" class="btn btn-outline">Cancel</a>
-                                    <button type="submit" class="btn btn-primary">
+                                <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-stretch sm:justify-end gap-3 sm:space-x-3">
+                                    <a href="?" class="btn btn-outline w-full sm:w-auto">Cancel</a>
+                                    <button type="submit" class="btn btn-primary w-full sm:w-auto">
                                         <i class="bi bi-save mr-2"></i>Save Alias & Link Client
                                 </button>
                             </div>
@@ -173,17 +173,17 @@
                                 <p class="mb-2"><strong>KRA Last Name:</strong> {{ result.kra_last_name|default:'-' }}</p>
                                 <p class="mb-2"><strong>KRA Surname:</strong> {{ result.kra_surname|default:'-' }}</p>
                                 <p class="mb-4">{{ result.message }}</p>
-                                <form method="post" class="flex items-center space-x-3">
+                                <form method="post" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-3">
                                     {% csrf_token %}
                                     <input type="hidden" name="id_number" value="{{ result.id_number }}">
                                     <input type="hidden" name="user_type" value="{{ user_type }}">
                                     <input type="hidden" name="kra_first_name" value="{{ result.kra_first_name }}">
                                     <input type="hidden" name="kra_last_name" value="{{ result.kra_last_name }}">
                                     <input type="hidden" name="kra_surname" value="{{ result.kra_surname }}">
-                                    <button name="action" value="kra_confirm_yes" class="btn btn-primary">
+                                    <button name="action" value="kra_confirm_yes" class="btn btn-primary w-full sm:w-auto">
                                         <i class="bi bi-check2-circle mr-2"></i>Yes, use these details
                                     </button>
-                                    <button name="action" value="kra_confirm_no" class="btn btn-outline">
+                                    <button name="action" value="kra_confirm_no" class="btn btn-outline w-full sm:w-auto">
                                         <i class="bi bi-x-circle mr-2"></i>No, enter different details
                                     </button>
                                 </form>
@@ -233,9 +233,9 @@
                     </div>
                 </div>
                                     </div>
-                                    <div class="flex items-center justify-end space-x-3">
-                                        <a href="?" class="btn btn-outline">Cancel</a>
-                                        <button type="submit" class="btn btn-primary">
+                                    <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-stretch sm:justify-end gap-3 sm:space-x-3">
+                                        <a href="?" class="btn btn-outline w-full sm:w-auto">Cancel</a>
+                                        <button type="submit" class="btn btn-primary w-full sm:w-auto">
                                             <i class="bi bi-save mr-2"></i>Create & Link Client
                                         </button>
                                     </div>
@@ -253,7 +253,7 @@
     </div>
 </div>
 
-<style>
+<!-- <style>
     /* Form radio buttons */
     .form-radio {
         appearance: none;
@@ -417,10 +417,15 @@
         text-align: center;
     }
     
+    /* Ensure inputs with icons have left padding on mobile */
+    .input-group .form-input {
+        padding-left: 2.75rem;
+    }
+    
     .form-control {
         padding-left: 2.75rem !important;
         padding-right: 1rem;
         height: 2.75rem;
     }
-</style>
+</style> -->
 {% endblock %}

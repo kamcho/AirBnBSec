@@ -4,675 +4,197 @@
 {% block title %}Security Dashboard - AirBnBSec{% endblock %}
 
 {% block extra_css %}
-<style type="text/css">
-    /* Dashboard Container */
+<style>
+    :root {
+        --primary: #3b82f6;
+        --primary-light: #60a5fa;
+        --secondary: #6b7280;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #1f2937;
+        --light: #f3f4f6;
+        --gray-100: #f9fafb;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+    }
+
     body {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        min-height: 100vh;
+        background-color: #0f172a;
+        color: #e2e8f0;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.5;
     }
-    
+
     .dashboard-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 1rem;
-        width: 100%;
+        padding: 2rem 1rem;
     }
-    
-    @media (min-width: 640px) {
-        .dashboard-container {
-            padding: 1.5rem;
-        }
-    }
-    
+
     .dashboard-header {
         text-align: center;
         margin-bottom: 3rem;
         position: relative;
-    }
-    
-    .dashboard-header .icon-container {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1.5rem;
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-        position: relative;
-    }
-    
-    .dashboard-header .icon-container::before {
-        content: '';
-        position: absolute;
-        inset: -2px;
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8, #3b82f6);
-        border-radius: 22px;
-        z-index: -1;
-        opacity: 0.3;
-        filter: blur(8px);
-    }
-    
-    .dashboard-header h1 {
-        color: #fff;
-        font-weight: 800;
-        margin-bottom: 0.75rem;
-        font-size: 3rem;
-        background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .dashboard-header p {
-        color: #94a3b8;
-        font-size: 1.2rem;
-        line-height: 1.6;
-    }
-    
-    .stats-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        margin: 1.5rem auto 2rem;
-        opacity: 0;
-        animation: fadeIn 0.8s ease-out forwards;
-        animation-delay: 0.3s;
-        width: 100%;
-        max-width: 100%;
-        padding: 0 1rem;
-        box-sizing: border-box;
-        justify-items: center;
-    }
-    
-    @media (min-width: 480px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, minmax(200px, 1fr));
-            gap: 1rem;
-            padding: 0;
-            justify-items: center;
-        }
-    }
-    
-    @media (min-width: 768px) {
-        .stats-grid {
-            padding: 0 2rem;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            margin: 2rem auto 3rem;
-            padding: 0;
-            max-width: 1400px;
-            justify-items: stretch;
-        }
-        
-        .stat-card {
-            max-width: 100%;
-        }
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .stat-card {
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 1.5rem 1rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        backdrop-filter: blur(10px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        min-height: 180px;
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
-    
-    @media (min-width: 480px) {
-        .stat-card {
-            padding: 1.75rem 1.25rem;
-        }
-    }
-    
-    @media (min-width: 768px) {
-        .stat-card {
-            padding: 2rem 1.5rem;
-            min-height: 200px;
-        }
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        border-color: rgba(99, 102, 241, 0.3);
-        background: rgba(30, 41, 59, 0.9);
-    }
-    
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-        opacity: 0.9;
-        transition: all 0.4s ease;
-    }
-    
-    .stat-card:hover::before {
-        height: 6px;
-        opacity: 1;
-    }
-    
-    .stat-icon {
-        width: 3.5rem;
-        height: 3.5rem;
-        margin: 0 auto 1.25rem;
-        background: rgba(59, 130, 246, 0.15);
+        padding: 2rem 0;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border-radius: 1rem;
         border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        position: relative;
+        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.2);
         overflow: hidden;
     }
-    
-    .stat-card:hover .stat-icon {
-        background: rgba(99, 102, 241, 0.2);
-        transform: scale(1.1) rotate(5deg);
-    }
-    
-    .stat-icon::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-    }
-    
-    .stat-card:hover .stat-icon {
-        transform: rotate(5deg) scale(1.1);
-        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-    }
-    
-    .stat-card:hover .stat-icon::before {
-        opacity: 1;
-    }
-    
-    .stat-icon i {
-        color: #3b82f6;
-        position: relative;
-        z-index: 1;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover .stat-icon i {
-        color: white;
-        transform: scale(1.1);
-    }
-    
-    .stat-value {
-        color: #e0e7ff;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0.5rem 0;
-        display: block;
-        line-height: 1.2;
-        position: relative;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover .stat-value {
-        letter-spacing: 0.5px;
-    }
-    
-    .stat-label {
-        color: #94a3b8;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin: 0.5rem 0;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover .stat-label {
-        background: rgba(99, 102, 241, 0.15);
-        color: #c7d2fe;
-        transform: translateY(2px);
-    }
-    
-    .stat-change {
-        margin-top: 1rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.75rem;
-        border-radius: 100px;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-change.positive {
-        color: #10b981;
-        background: rgba(16, 185, 129, 0.1);
-    }
-    
-    .stat-change.positive::before {
-        content: '↑';
-        margin-right: 0.25rem;
-        animation: floatUp 2s ease-in-out infinite;
-    }
-    
-    .stat-change.negative {
-        color: #ef4444;
-        background: rgba(239, 68, 68, 0.1);
-    }
-    
-    .stat-change.negative::before {
-        content: '↓';
-        margin-right: 0.25rem;
-        animation: floatDown 2s ease-in-out infinite;
-    }
-    
-    @keyframes floatUp {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-2px); }
-    }
-    
-    @keyframes floatDown {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(2px); }
-    }
-    
-    .dashboard-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        margin: 0 auto 2rem;
-        width: 100%;
-        max-width: 1400px;
-        padding: 0 1rem;
-        box-sizing: border-box;
-    }
-    
-    @media (min-width: 768px) {
-        .dashboard-content {
-            padding: 0 2rem;
-        }
-    }
-    
-    .chart-section {
-        background: rgba(30, 41, 59, 0.8);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        padding: 1.25rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .chart-section::before {
+
+    .dashboard-header::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-        opacity: 0.7;
-        transition: all 0.4s ease;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+        background-size: 200% 200%;
+        animation: gradientBG 8s ease infinite;
     }
-    
-    .chart-section:hover {
-        border-color: rgba(99, 102, 241, 0.2);
-        transform: translateY(-3px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
-    
-    .chart-section:hover::before {
-        opacity: 1;
-        height: 4px;
-    }
-    
-    .chart-container {
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 0 0.75rem 0;
+        background: linear-gradient(90deg, #ffffff, #e0e7ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
         position: relative;
-        width: 100%;
-        flex: 1;
-        min-height: 200px;
-        transition: all 0.3s ease;
+        display: inline-block;
+        padding: 0 1.5rem;
     }
-    
-    /* Custom scrollbar for chart containers with overflow */
-    .chart-container::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    
-    .chart-container::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-    }
-    
-    .chart-container::-webkit-scrollbar-thumb {
-        background: rgba(99, 102, 241, 0.5);
-        border-radius: 10px;
-    }
-    
-    .chart-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(99, 102, 241, 0.7);
-    }
-    
-    .section-title {
-        color: #e2e8f0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        position: relative;
-        padding-bottom: 0.75rem;
-    }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 40px;
-        height: 2px;
-        background: linear-gradient(90deg, #3b82f6, transparent);
-        border-radius: 2px;
-    }
-    
-    .section-title i {
-        color: #3b82f6;
+
+    .dashboard-subtitle {
+        color: #a5b4fc;
         font-size: 1.25rem;
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
+        font-weight: 400;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
-    
-    .chart-placeholder {
-        background: rgba(15, 23, 42, 0.5);
-        border: 2px dashed rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 4rem 2rem;
-        text-align: center;
-        color: #94a3b8;
-    }
-    
-    .chart-placeholder i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #64748b;
-    }
-    
-    .recent-incidents {
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    
-    .incident-item {
-        background: rgba(15, 23, 42, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .incident-item:hover {
-        background: rgba(15, 23, 42, 0.7);
-        border-color: rgba(59, 130, 246, 0.3);
-    }
-    
-    .incident-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .incident-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.75rem;
-    }
-    
-    .incident-title {
-        color: #fff;
-        font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-    }
-    
-    .incident-id {
-        color: #94a3b8;
-        font-size: 0.85rem;
-    }
-    
-    .incident-meta {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-    
-    .meta-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-    
-    .severity-high { 
-        background: rgba(239, 68, 68, 0.2); 
-        color: #ef4444; 
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    .severity-medium { 
-        background: rgba(245, 158, 11, 0.2); 
-        color: #f59e0b; 
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    .severity-low { 
-        background: rgba(16, 185, 129, 0.2); 
-        color: #10b981; 
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    
-    .status-open { 
-        background: rgba(239, 68, 68, 0.2); 
-        color: #ef4444; 
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    .status-investigating { 
-        background: rgba(245, 158, 11, 0.2); 
-        color: #f59e0b; 
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    .status-resolved { 
-        background: rgba(16, 185, 129, 0.2); 
-        color: #10b981; 
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    .status-closed { 
-        background: rgba(107, 114, 128, 0.2); 
-        color: #6b7280; 
-        border: 1px solid rgba(107, 114, 128, 0.3);
-    }
-    
-    .incident-date {
-        color: #94a3b8;
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
-    }
-    
-    .quick-actions {
+
+    .stats-grid {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        margin-top: 2rem;
-        width: 100%;
-        max-width: 100%;
-        padding: 0 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
-    
-    @media (min-width: 480px) {
-        .quick-actions {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            padding: 0;
-        }
-    }
-    
-    @media (min-width: 768px) {
-        .quick-actions {
-            padding: 0 2rem;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        .quick-actions {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-            margin-top: 3rem;
-            padding: 0;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-    
-    .action-card {
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 2rem;
+
+    .stat-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         text-align: center;
         transition: all 0.3s ease;
-        text-decoration: none;
-        color: inherit;
     }
-    
-    .action-card:hover {
+
+    .stat-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        text-decoration: none;
-        color: inherit;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        border-color: #3b82f6;
     }
-    
-    .action-icon {
-        width: 50px;
-        height: 50px;
+
+    .stat-icon {
+        width: 3rem;
+        height: 3rem;
         margin: 0 auto 1rem;
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        border-radius: 12px;
+        border-radius: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        font-size: 1.5rem;
     }
-    
-    .action-icon i {
-        font-size: 1.25rem;
-        color: white;
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 0.25rem;
     }
-    
-    .action-title {
-        color: #fff;
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .action-description {
+
+    .stat-label {
         color: #94a3b8;
-        font-size: 0.9rem;
-        line-height: 1.5;
+        font-size: 0.875rem;
     }
-    
-    .view-all-link {
-        text-align: center;
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
         margin-top: 1.5rem;
     }
     
-    .btn-view-all {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-        border: none;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        border-radius: 12px;
-        color: white;
-        text-decoration: none;
+    .chart-section {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         transition: all 0.3s ease;
-        display: inline-flex;
+        height: 100%;
+    }
+    
+    .chart-section:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-bottom: 1.5rem;
+        display: flex;
         align-items: center;
         gap: 0.5rem;
     }
-    
-    .btn-view-all:hover {
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-        color: white;
-        text-decoration: none;
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0.5rem;
     }
     
-    /* Responsive Design */
+    /* Ensure chart canvas takes full container */
+    .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
     @media (max-width: 768px) {
-        .dashboard-container {
-            margin: 1rem;
-            padding: 1rem;
-        }
-        
-        .dashboard-header h1 {
-            font-size: 2rem;
-        }
-        
         .stats-grid {
             grid-template-columns: 1fr;
         }
         
-        .dashboard-content {
-            grid-template-columns: 1fr;
+        .dashboard-title {
+            font-size: 2rem;
+            padding: 0 1rem;
         }
         
-        .quick-actions {
-            grid-template-columns: 1fr;
-        }
-        
-        .incident-meta {
-            flex-direction: column;
-            gap: 0.5rem;
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            padding: 0 1rem;
         }
     }
 </style>
@@ -680,478 +202,418 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <div class="dashboard-header transform transition-all duration-500 hover:scale-[1.02]">
-        <div class="icon-container hover:rotate-6 transition-transform duration-500">
-            <i data-lucide="shield-alert" class="h-10 w-10 text-white"></i>
-        </div>
-        <h1>Security Dashboard</h1>
-        <p>Monitor security incidents and track performance across your properties</p>
-    </div>
-    
-    <div class="stats-grid">
-        <div class="stat-card" style="animation-delay: 0.1s">
-            <div class="stat-icon">
-                <i data-lucide="shield-alert" class="h-6 w-6"></i>
+        <!-- Header Section -->
+        <header class="dashboard-header">
+            <div class="container">
+                <h1 class="dashboard-title">Security Dashboard</h1>
+                <p class="dashboard-subtitle">
+                    <i data-lucide="shield" class="inline-icon"></i>
+                    Monitor and analyze security incidents across all properties in real-time
+                </p>
             </div>
-            <div class="stat-value">{{ stats.total_incidents }}</div>
-            <div class="stat-label">Total Incidents</div>
-            <div class="stat-change positive">+{{ stats.incidents_this_month }} this month</div>
-        </div>
-        
-        <div class="stat-card" style="animation-delay: 0.2s">
-            <div class="stat-icon">
-                <i data-lucide="alert-triangle" class="h-6 w-6"></i>
-            </div>
-            <div class="stat-value">{{ stats.open_incidents }}</div>
-            <div class="stat-label">Open Incidents</div>
-            <div class="stat-change {% if stats.open_incidents > 0 %}negative{% else %}positive{% endif %}">
-                {% if stats.open_incidents > 0 %}{{ stats.open_incidents }} pending{% else %}All resolved{% endif %}
-            </div>
-        </div>
-        
-        <div class="stat-card" style="animation-delay: 0.3s">
-            <div class="stat-icon">
-                <i data-lucide="check-circle" class="h-6 w-6"></i>
-            </div>
-            <div class="stat-value">{{ stats.resolved_incidents }}</div>
-            <div class="stat-label">Resolved</div>
-            <div class="stat-change positive">{{ stats.resolution_rate }}% resolution rate</div>
-        </div>
-        
-        <div class="stat-card" style="animation-delay: 0.4s">
-            <div class="stat-icon">
-                <i data-lucide="clock" class="h-6 w-6"></i>
-            </div>
-            <div class="stat-value">{{ stats.avg_resolution_time }}</div>
-            <div class="stat-label">Avg Resolution (days)</div>
-            <div class="stat-change positive">Improved by 15%</div>
-        </div>
-    </div>
-    
-    <div class="dashboard-content">
-        <!-- Top Row: Main Chart -->
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-            <!-- Main Chart - Monthly Trends -->
-            <div class="chart-section xl:col-span-2">
-                <div class="chart-header">
-                    <h2 class="section-title">
-                        <i data-lucide="bar-chart-3" class="h-5 w-5"></i> Monthly Incident Trends
-                    </h2>
-                    <div class="chart-actions">
-                        <button class="chart-action-btn active" data-period="month">Month</button>
-                        <button class="chart-action-btn" data-period="quarter">Quarter</button>
-                        <button class="chart-action-btn" data-period="year">Year</button>
-                    </div>
+        </header>
+
+    <!-- Stats Overview Section -->
+    <section class="stats-overview">
+        <h2 class="section-title">Overview</h2>
+        <div class="stats-grid">
+            <!-- Stat Card 1 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #dbeafe; color: #3b82f6;">
+                    <i data-lucide="alert-circle"></i>
                 </div>
-                <div class="chart-container" style="height: 320px;">
-                    <canvas id="monthlyTrendsChart"></canvas>
-                </div>
+                <div class="stat-value">24</div>
+                <div class="stat-label">Total Incidents</div>
             </div>
-            
-            <!-- Quick Stats Card -->
-            <div class="grid grid-rows-2 gap-6">
-                <!-- Incidents by Type -->
-                <div class="chart-section group hover:border-indigo-500/30 transition-all duration-300 h-full">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="section-title">
-                            <i data-lucide="list" class="h-5 w-5 text-indigo-400"></i> 
-                            <span class="ml-2">By Type</span>
-                        </h2>
-                        <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-1 rounded-full">{{ chart_data.incident_types|length }} Types</span>
-                    </div>
-                    <div class="chart-container h-48 relative">
-                        <canvas id="incidentTypeChart"></canvas>
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="typeNoData" style="display: none;">
-                            <div class="text-center p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
-                                <i data-lucide="pie-chart" class="h-6 w-6 text-gray-500 mx-auto mb-1"></i>
-                                <p class="text-xs text-gray-400">No data available</p>
-                            </div>
-                        </div>
-                    </div>
+
+            <!-- Stat Card 2 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #fef3c7; color: #f59e0b;">
+                    <i data-lucide="alert-triangle"></i>
                 </div>
-                
-                <!-- Incidents by Severity -->
-                <div class="chart-section group hover:border-amber-500/30 transition-all duration-300 h-full">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="section-title">
-                            <i data-lucide="alert-triangle" class="h-5 w-5 text-amber-400"></i> 
-                            <span class="ml-2">By Severity</span>
-                        </h2>
-                        <div class="flex items-center space-x-1">
-                            <span class="h-2 w-2 rounded-full bg-{{ chart_data.severity_levels.0|lower }}"></span>
-                            <span class="text-xs text-gray-400">{{ chart_data.severity_levels.0 }}</span>
-                        </div>
-                    </div>
-                    <div class="chart-container h-48 relative">
-                        <canvas id="severityChart"></canvas>
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" id="severityNoData" style="display: none;">
-                            <div class="text-center p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm">
-                                <i data-lucide="alert-triangle" class="h-6 w-6 text-gray-500 mx-auto mb-1"></i>
-                                <p class="text-xs text-gray-400">No data available</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="stat-value">8</div>
+                <div class="stat-label">Active Incidents</div>
+            </div>
+
+            <!-- Stat Card 3 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #dcfce7; color: #10b981;">
+                    <i data-lucide="check-circle"></i>
                 </div>
+                <div class="stat-value">15</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+
+            <!-- Stat Card 4 -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #fee2e2; color: #ef4444;">
+                    <i data-lucide="alert-octagon"></i>
+                </div>
+                <div class="stat-value">1</div>
+                <div class="stat-label">Critical</div>
             </div>
         </div>
-            
-            <!-- Incidents by Day of Week -->
-            <div class="chart-section md:col-span-2">
-                <h2 class="section-title">
-                    <i data-lucide="calendar" class="h-5 w-5"></i> Incidents by Day of Week
-                </h2>
-                <div class="chart-container h-64">
-                    <canvas id="weekdayChart"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <div class="recent-incidents">
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-section">
+        <!-- Main Trends Chart -->
+        <div class="chart-section">
             <h2 class="section-title">
-                <i class="bi bi-clock-history"></i>Recent Incidents
+                <i data-lucide="bar-chart-3"></i>
+                Monthly Incident Trends
             </h2>
-            
-            {% for incident in recent_incidents %}
-                <div class="incident-item">
-                    <div class="incident-header">
-                        <div>
-                            <div class="incident-title">{{ incident.title }}</div>
-                            <div class="incident-id">ID: {{ incident.incident_id }}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="incident-meta">
-                        <span class="meta-badge severity-{{ incident.severity|lower }}">
-                            {{ incident.get_severity_display }}
-                        </span>
-                        <span class="meta-badge status-{{ incident.status|lower }}">
-                            {{ incident.get_status_display }}
-                        </span>
-                    </div>
-                    
-                    <div class="incident-date">
-                        {{ incident.incident_date|date:"M d, Y H:i" }}
-                    </div>
-                </div>
-            {% empty %}
-                <div style="text-align: center; padding: 2rem; color: #94a3b8;">
-                    <i class="bi bi-shield-check" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                    <p>No recent incidents</p>
-                </div>
-            {% endfor %}
-            
-            <div class="view-all-link">
-                <a href="{% url 'home:incident_list' %}" class="btn-view-all">
-                    <i class="bi bi-list-ul"></i>View All Incidents
-                </a>
+            <div class="chart-container">
+                <canvas id="monthlyTrendsChart"></canvas>
             </div>
         </div>
-    </div>
-    
-    <div class="quick-actions">
-        <a href="{% url 'home:incident_create_step1' %}" class="action-card">
-            <div class="action-icon">
-                <i data-lucide="plus-circle" class="h-6 w-6"></i>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Incident Types Pie Chart -->
+            <div class="chart-section">
+                <h2 class="section-title">
+                    <i data-lucide="pie-chart"></i>
+                    Incident Types
+                </h2>
+                <div class="chart-container">
+                    <canvas id="incidentTypesChart"></canvas>
+                </div>
             </div>
-            <div class="action-title">Report Incident</div>
-            <div class="action-description">Create a new security incident report</div>
-        </a>
-        
-        <a href="{% url 'home:verify_client' %}" class="action-card">
-            <div class="action-icon">
-                <i data-lucide="user-check" class="h-6 w-6"></i>
+
+            <!-- Status Distribution Chart -->
+            <div class="chart-section">
+                <h2 class="section-title">
+                    <i data-lucide="activity"></i>
+                    Status Overview
+                </h2>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
             </div>
-            <div class="action-title">Verify ID</div>
-            <div class="action-description">Verify guest identity using ID number</div>
-        </a>
-        
-        <a href="{% url 'home:incident_dashboard' %}" class="action-card">
-            <div class="action-icon">
-                <i data-lucide="bar-chart" class="h-6 w-6"></i>
+
+            <!-- Severity Distribution Bar Chart -->
+            <div class="chart-section">
+                <h2 class="section-title">
+                    <i data-lucide="alert-triangle"></i>
+                    Severity Distribution
+                </h2>
+                <div class="chart-container">
+                    <canvas id="severityChart"></canvas>
+                </div>
             </div>
-            <div class="action-title">Analytics</div>
-            <div class="action-description">View detailed security analytics</div>
-        </a>
-        
-        <a href="{% url 'home:landing' %}" class="action-card">
-            <div class="action-icon">
-                <i data-lucide="home" class="h-6 w-6"></i>
-            </div>
-            <div class="action-title">Home</div>
-            <div class="action-description">Return to main dashboard</div>
-        </a>
-    </div>
+        </div>
+    </section>
 </div>
 
-{% block extra_js %}
+<!-- Include Lucide Icons and Chart.js -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Lucide Icons
-        lucide.createIcons();
+        // Chart.js global configuration
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
         
-        // Chart.js configuration
-        const chartColors = {
-            primary: 'rgba(59, 130, 246, 0.8)',
-            secondary: 'rgba(99, 102, 241, 0.8)',
-            success: 'rgba(16, 185, 129, 0.8)',
-            danger: 'rgba(239, 68, 68, 0.8)',
-            warning: 'rgba(245, 158, 11, 0.8)',
-            info: 'rgba(59, 130, 246, 0.8)',
-            light: 'rgba(203, 213, 225, 0.8)',
-            dark: 'rgba(30, 41, 59, 0.8)'
+        // Monthly Trends Chart
+        const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+        
+        // Sample data - replace with your actual data
+        const monthlyData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+                label: 'Security Incidents',
+                data: [12, 19, 15, 8, 11, 14, 9],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#1e293b',
+                pointBorderColor: '#3b82f6',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
         };
 
-        // 1. Monthly Trends Line Chart
-        const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart')?.getContext('2d');
-        if (monthlyTrendsCtx) {
-            new Chart(monthlyTrendsCtx, {
-                type: 'line',
-                data: {
-                    labels: {{ chart_data.months|safe }},
-                    datasets: [{
-                        label: 'Incidents',
-                        data: {{ chart_data.monthly_counts|safe }},
-                        borderColor: chartColors.primary,
-                        backgroundColor: chartColors.primary.replace('0.8', '0.1'),
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: chartColors.primary,
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
+        // Create the chart
+        const monthlyTrendsChart = new Chart(monthlyTrendsCtx, {
+            type: 'line',
+            data: monthlyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Incidents: ${context.parsed.y}`;
+                            }
+                        }
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 14, weight: '600' },
-                            bodyFont: { size: 13 },
+                        ticks: {
+                            color: '#94a3b8'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            precision: 0
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        // Incident Types Pie Chart
+        const incidentTypesCtx = document.getElementById('incidentTypesChart').getContext('2d');
+        const incidentTypesData = {
+            labels: [
+                'Fraud Attempt',
+                'Unauthorized Access',
+                'Property Damage',
+                'Suspicious Activity',
+                'Verification Failure',
+                'Payment Fraud',
+                'Identity Theft',
+                'Harassment',
+                'Noise Complaint',
+                'Other'
+            ],
+            datasets: [{
+                data: [15, 20, 18, 12, 8, 10, 5, 7, 3, 2],  // Sample data - replace with actual counts
+                backgroundColor: [
+                    '#3b82f6',  // Blue
+                    '#10b981',  // Green
+                    '#f59e0b',  // Amber
+                    '#ef4444',  // Red
+                    '#8b5cf6',  // Purple
+                    '#ec4899',  // Pink
+                    '#06b6d4',  // Cyan
+                    '#84cc16',  // Lime
+                    '#f97316',  // Orange
+                    '#64748b'   // Slate
+                ],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        };
+
+        const incidentTypesChart = new Chart(incidentTypesCtx, {
+            type: 'doughnut',
+            data: incidentTypesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#94a3b8',
                             padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.parsed.y} incident${context.parsed.y !== 1 ? 's' : ''}`;
-                                }
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12
                             }
                         }
                     },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.05)',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                precision: 0
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
                 }
-            });
-        }
+            }
+        });
 
-        // 2. Incidents by Type Doughnut Chart
-        const typeChartCtx = document.getElementById('incidentTypeChart')?.getContext('2d');
-        if (typeChartCtx) {
-            new Chart(typeChartCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: {{ chart_data.incident_types|safe }},
-                    datasets: [{
-                        data: {{ chart_data.incident_type_counts|safe }},
-                        backgroundColor: [
-                            chartColors.primary,
-                            chartColors.secondary,
-                            chartColors.success,
-                            chartColors.warning,
-                            chartColors.danger,
-                            chartColors.info
-                        ],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                color: '#e2e8f0',
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, weight: '600' },
-                            bodyFont: { size: 12 },
-                            padding: 10,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
+        // Severity Distribution Bar Chart
+        const severityCtx = document.getElementById('severityChart').getContext('2d');
+        const severityData = {
+            labels: ['Low', 'Medium', 'High', 'Critical'],
+            datasets: [{
+                label: 'Incidents',
+                data: [45, 30, 15, 10],
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)',    // Green
+                    'rgba(245, 158, 11, 0.8)',    // Amber
+                    'rgba(239, 68, 68, 0.8)',     // Red
+                    'rgba(139, 92, 246, 0.8)'     // Purple
+                ],
+                borderColor: [
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(139, 92, 246, 1)'
+                ],
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        };
+
+        const severityChart = new Chart(severityCtx, {
+            type: 'bar',
+            data: severityData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Incidents: ${context.parsed.y}`;
                             }
                         }
                     }
-                }
-            });
-        }
-
-        // 3. Severity Distribution Bar Chart
-        const severityCtx = document.getElementById('severityChart')?.getContext('2d');
-        if (severityCtx) {
-            new Chart(severityCtx, {
-                type: 'bar',
-                data: {
-                    labels: {{ chart_data.severity_levels|safe }},
-                    datasets: [{
-                        label: 'Incidents by Severity',
-                        data: {{ chart_data.severity_counts|safe }},
-                        backgroundColor: [
-                            chartColors.success,  // Low
-                            chartColors.warning,  // Medium
-                            chartColors.danger,   // High
-                            chartColors.dark      // Critical
-                        ],
-                        borderWidth: 0,
-                        borderRadius: 4,
-                        barThickness: 20
-                    }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: false
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, weight: '600' },
-                            bodyFont: { size: 12 },
-                            padding: 10,
-                            displayColors: false
+                        ticks: {
+                            color: '#94a3b8'
                         }
                     },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                precision: 0
-                            }
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
                         },
-                        y: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#e2e8f0',
-                                font: {
-                                    weight: '500'
-                                }
-                            }
+                        ticks: {
+                            color: '#94a3b8',
+                            precision: 0
                         }
                     }
                 }
-            });
-        }
+            }
+        });
 
-        // 4. Weekday Distribution Bar Chart
-        const weekdayCtx = document.getElementById('weekdayChart')?.getContext('2d');
-        if (weekdayCtx) {
-            new Chart(weekdayCtx, {
-                type: 'bar',
-                data: {
-                    labels: {{ chart_data.weekday_labels|safe }},
-                    datasets: [{
-                        label: 'Incidents by Day of Week',
-                        data: {{ chart_data.weekday_data|safe }},
-                        backgroundColor: Array(7).fill(chartColors.info),
-                        borderWidth: 0,
-                        borderRadius: 4,
-                        barThickness: 12
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, weight: '600' },
-                            bodyFont: { size: 12 },
-                            padding: 10,
-                            displayColors: false
+        // Status Distribution Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        const statusData = {
+            labels: ['Reported', 'In Progress', 'Escalated', 'Resolved', 'Closed'],
+            datasets: [{
+                data: [25, 15, 10, 35, 15],
+                backgroundColor: [
+                    '#3b82f6',  // Blue for Reported
+                    '#f59e0b',  // Amber for In Progress
+                    '#8b5cf6',  // Purple for Escalated
+                    '#10b981',  // Green for Resolved
+                    '#6b7280'   // Gray for Closed
+                ],
+                borderWidth: 0,
+                hoverOffset: 10,
+                spacing: 2
+            }]
+        };
+
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: statusData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#94a3b8',
+                            padding: 8,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12
+                            }
                         }
                     },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8'
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.05)',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: '#94a3b8',
-                                precision: 0
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
                 }
-            });
-        }
+            }
+        });
+
+        // Add window resize event listeners for all charts
+        const charts = [monthlyTrendsChart, incidentTypesChart, severityChart, statusChart];
+        window.addEventListener('resize', function() {
+            charts.forEach(chart => chart.resize());
+        });
     });
 </script>
-{% endblock %}
 {% endblock %}

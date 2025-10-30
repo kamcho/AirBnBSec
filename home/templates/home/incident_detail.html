@@ -447,6 +447,7 @@
         flex-direction: column;
         gap: 1.5rem;
         width: 100%;
+        align-items: center; /* center meta rows on small screens */
     }
 
     .incident-meta {
@@ -456,6 +457,7 @@
         margin: 0;
         padding: 0;
         width: 100%;
+        max-width: 700px; /* keep reasonable width on small screens */
     }
     
     @media (max-width: 1200px) {
@@ -473,6 +475,7 @@
     @media (max-width: 576px) {
         .incident-meta {
             grid-template-columns: 1fr;
+            justify-items: center; /* center single-column cards */
         }
     }
     

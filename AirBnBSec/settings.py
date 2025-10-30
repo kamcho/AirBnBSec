@@ -100,9 +100,8 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Security settings
 CSRF_TRUSTED_ORIGINS = [
-    'https://arhythmically-unciliated-danna.ngrok-free.dev',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
+    'http://www.tourske.com',
+    'https://tourske.com',
 ]
 
 # Security settings - different in development vs production
@@ -130,7 +129,7 @@ else:
     SESSION_COOKIE_SECURE = False
     SECURE_SSL_REDIRECT = False
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['www.tourske.com','127.0.0.1','localhost','tourske.com','13.60.251.46']
 
 
 # Application definition

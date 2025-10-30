@@ -413,9 +413,11 @@ def incident_dashboard(request):
 
 
 # Multi-step incident creation views
-class IncidentCreateStep1View(View):
+class IncidentCreateStep1View(LoginRequiredMixin, View):
     """Step 1: Incident Information and Description"""
     template_name = 'home/incident_create_step1.html'
+    login_url = '/accounts/login/'
+    redirect_field_name = 'next'
     
     def get(self, request):
         form = IncidentStep1Form()
@@ -430,9 +432,11 @@ class IncidentCreateStep1View(View):
         return render(request, self.template_name, {'form': form, 'step': 1})
 
 
-class IncidentCreateStep2View(View):
+class IncidentCreateStep2View(LoginRequiredMixin, View):
     """Step 2: Date and Time Information"""
     template_name = 'home/incident_create_step2.html'
+    login_url = '/accounts/login/'
+    redirect_field_name = 'next'
     
     def get(self, request):
         # Check if step 1 data exists
@@ -463,9 +467,11 @@ class IncidentCreateStep2View(View):
         })
 
 
-class IncidentCreateStep3View(View):
+class IncidentCreateStep3View(LoginRequiredMixin, View):
     """Step 3: Additional Details and Final Submission"""
     template_name = 'home/incident_create_step3.html'
+    login_url = '/accounts/login/'
+    redirect_field_name = 'next'
     
     def get(self, request):
         # Check if previous steps data exists

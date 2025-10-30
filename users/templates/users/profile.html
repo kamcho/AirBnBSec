@@ -4,204 +4,395 @@
 {% block title %}Profile - AICitizen{% endblock %}
 
 {% block content %}
-<div class="w-full px-0 sm:px-4 py-4 sm:py-8">
-  <div class="bg-gray-800 rounded-none sm:rounded-xl shadow-lg overflow-hidden">
+<div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
     <!-- Profile Header -->
-    <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 p-6 sm:p-8">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-      <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-end space-y-4 sm:space-y-0 sm:space-x-6">
-        <div class="relative group">
-          <div class="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-white/10 backdrop-blur-sm border-4 border-white/20 flex items-center justify-center text-4xl font-bold text-white">
-            {{ first_name|default:'U'|first }}{{ last_name|default:'S'|first }}
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-2xl overflow-hidden mb-8">
+      <div class="px-8 py-10 sm:px-12 sm:py-12">
+        <div class="flex flex-col md:flex-row items-center">
+          <!-- Profile Picture -->
+          <div class="relative group mb-6 md:mb-0 md:mr-8">
+            <div class="h-32 w-32 rounded-full bg-white/10 backdrop-blur-sm border-4 border-white/20 flex items-center justify-center text-5xl font-bold text-white shadow-lg">
+              {{ first_name|default:'U'|first }}{{ last_name|default:'S'|first }}
+            </div>
+            <div class="absolute -right-2 -bottom-2">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500 text-white shadow-md">
+                <span class="w-2 h-2 rounded-full bg-white mr-1.5"></span>
+                Active
+              </span>
+            </div>
           </div>
-          <div class="absolute -right-2 -bottom-2">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white">
-              <span class="w-2 h-2 rounded-full bg-white mr-1.5"></span>
-              Active
-            </span>
+          
+          <!-- User Info -->
+          <div class="text-center md:text-left flex-1">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-1">
+              {{ first_name|default:'User' }} {{ last_name|default:'' }}
+            </h1>
+            <div class="flex items-center justify-center md:justify-start space-x-4 mb-4">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white/90">
+                <i class="fas fa-user-tag mr-1.5"></i>
+                {{ user.role|default:'User' }}
+              </span>
+              <span class="text-white/80 text-sm">
+                <i class="far fa-id-card mr-1"></i>
+                ID: {{ user.id_number|default:'N/A' }}
+              </span>
+            </div>
+            <p class="text-white/90 max-w-lg">
+              <i class="far fa-envelope mr-2"></i>
+              {{ user.email|default:'No email provided' }}
+            </p>
           </div>
-        </div>
-        <div class="text-center sm:text-left">
-          <h1 class="text-2xl sm:text-3xl font-bold text-white">
-            {{ first_name|default:'User' }} {{ last_name|default:'' }}
-          </h1>
-          <p class="text-blue-100 font-medium">{{ user.role|default:'User' }}</p>
-          <p class="text-blue-200 text-sm">ID: {{ user.id_number|default:'N/A' }}</p>
-        </div>
-        <div class="flex space-x-3 mt-4 sm:mt-0 sm:ml-auto">
-          <a href="{% url 'edit_profile' %}" 
-             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <i class="fas fa-edit mr-2"></i>
-            Edit Profile
-          </a>
-          <a href="{% url 'settings' %}" 
-             class="inline-flex items-center px-4 py-2 border border-white/20 text-sm font-medium rounded-lg text-white bg-white/10 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/50">
-            <i class="fas fa-cog mr-2"></i>
-            Settings
-          </a>
+          
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-6 md:mt-0">
+            <a href="{% url 'edit_profile' %}" 
+               class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-indigo-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
+              <i class="fas fa-user-edit mr-2"></i>
+              Edit Profile
+            </a>
+            <a href="{% url 'settings' %}" 
+               class="inline-flex items-center justify-center px-5 py-2.5 border border-white/30 text-sm font-medium rounded-lg text-white bg-white/10 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/50 shadow-sm transition-colors">
+              <i class="fas fa-sliders-h mr-2"></i>
+              Settings
+            </a>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Profile Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 p-4 sm:p-6 md:p-8">
-      <!-- Personal Information -->
-      <div class="lg:col-span-2 space-y-8">
-        <!-- About Section -->
-        <div class="bg-gray-700/50 rounded-lg sm:rounded-xl p-4 sm:p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-white">About</h2>
-            <button class="text-blue-400 hover:text-blue-300">
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Column -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- About Card -->
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/5">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-white flex items-center">
+              <i class="fas fa-user-circle mr-3 text-indigo-400"></i>
+              About Me
+            </h2>
+            <button class="text-indigo-300 hover:text-white transition-colors">
               <i class="fas fa-pen"></i>
             </button>
           </div>
-          <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p class="text-sm font-medium text-gray-400">Email</p>
-                <p class="mt-1 text-white">{{ user.email|default:"Not provided" }}</p>
+          
+          <div class="space-y-6">
+            <!-- Personal Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-indigo-300 flex items-center">
+                  <i class="fas fa-phone-alt mr-2"></i>
+                  Phone
+                </div>
+                <p class="text-white text-lg">{{ profile.phone|default:"Not provided" }}</p>
               </div>
-              <div>
-                <p class="text-sm font-medium text-gray-400">Phone</p>
-                <p class="mt-1 text-white">{{ profile.phone|default:"Not provided" }}</p>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-gray-400">Location</p>
-                <p class="mt-1 text-white">
+              
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-indigo-300 flex items-center">
+                  <i class="fas fa-map-marker-alt mr-2"></i>
+                  Location
+                </div>
+                <p class="text-white text-lg">
                   {% if profile.city %}
                     {{ profile.city }}{% if profile.country %}, {{ profile.country }}{% endif %}
                   {% else %}
-                    -
+                    Not specified
                   {% endif %}
                 </p>
               </div>
-              <div>
-                <p class="text-sm font-medium text-gray-400">Gender</p>
-                <p class="mt-1 text-white">{{ profile.get_gender_display|default:"-" }}</p>
+              
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-indigo-300 flex items-center">
+                  <i class="fas fa-venus-mars mr-2"></i>
+                  Gender
+                </div>
+                <p class="text-white text-lg">{{ profile.get_gender_display|default:"Not specified" }}</p>
+              </div>
+              
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-indigo-300 flex items-center">
+                  <i class="far fa-calendar-alt mr-2"></i>
+                  Member Since
+                </div>
+                <p class="text-white text-lg">{{ user.date_joined|date:"F Y" }}</p>
               </div>
             </div>
-            <div>
-              <p class="text-sm font-medium text-gray-400">Bio</p>
-              <p class="mt-1 text-gray-300">{{ profile.bio|default:"No bio provided." }}</p>
+            
+            <!-- Bio Section -->
+            <div class="pt-4 border-t border-white/10">
+              <div class="text-sm font-medium text-indigo-300 mb-2 flex items-center">
+                <i class="fas fa-align-left mr-2"></i>
+                Bio
+              </div>
+              <p class="text-gray-300 leading-relaxed">
+                {{ profile.bio|default:"No bio provided. Click the edit button to add a short bio about yourself." }}
+              </p>
             </div>
           </div>
         </div>
-
-        <!-- Activity Section -->
-        <div class="bg-gray-700/50 rounded-lg sm:rounded-xl p-4 sm:p-6">
-          <h2 class="text-lg font-semibold text-white mb-4">Recent Activity</h2>
-          <div class="space-y-4">
-            <div class="flex items-start">
-              <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                <i class="fas fa-user-check"></i>
+        
+        <!-- Activity Feed -->
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/5">
+          <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+            <i class="fas fa-history mr-3 text-indigo-400"></i>
+            Recent Activity
+          </h2>
+          
+          <div class="space-y-6">
+            <!-- Activity Item -->
+            <div class="flex items-start group">
+              <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 mr-4 mt-0.5">
+                <i class="fas fa-user-edit"></i>
               </div>
-              <div class="ml-4">
-                <p class="text-sm text-white">Profile updated</p>
-                <p class="text-xs text-gray-400">{{ user.date_joined|timesince }} ago</p>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-white font-medium">Profile Updated</h4>
+                  <span class="text-xs text-gray-400">{{ user.date_joined|timesince }} ago</span>
+                </div>
+                <p class="text-gray-400 text-sm mt-1">You updated your profile information</p>
               </div>
             </div>
-            <!-- Add more activity items as needed -->
+            
+            <!-- More activity items can be added here -->
+            <div class="text-center py-4">
+              <button class="text-indigo-400 hover:text-white text-sm font-medium transition-colors">
+                View All Activity <i class="fas fa-arrow-right ml-1"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Sidebar -->
-      <div class="space-y-6">
-        <!-- Account Status -->
-        <div class="bg-gray-700/50 rounded-xl p-6">
-          <h3 class="text-sm font-medium text-gray-300 uppercase tracking-wider mb-4">Account Status</h3>
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Email Verified</span>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                <i class="fas fa-check-circle mr-1"></i>
+      <!-- Right Sidebar -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- Account Status Card -->
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-5 flex items-center">
+            <i class="fas fa-shield-alt mr-3 text-indigo-400"></i>
+            Account Status
+          </h3>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between py-2">
+              <div class="flex items-center">
+                <div class="p-2 rounded-lg bg-emerald-500/10 mr-3">
+                  <i class="fas fa-check-circle text-emerald-400"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-300">Email Verified</p>
+                  <p class="text-xs text-gray-400">Your email is confirmed</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300">
                 Verified
               </span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Account Type</span>
-              <span class="text-sm font-medium text-white">{{ user.role|default:"Standard" }}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Member Since</span>
-              <span class="text-sm text-gray-300">{{ user.date_joined|date:"M d, Y" }}</span>
+            
+            <div class="h-px bg-white/5 my-2"></div>
+            
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-400">Account Type</span>
+                <span class="text-sm font-medium text-white">{{ user.role|default:"Standard" }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-400">Member Since</span>
+                <span class="text-sm text-gray-300">{{ user.date_joined|date:"M d, Y" }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-400">Last Login</span>
+                <span class="text-sm text-gray-300">{{ user.last_login|date:"M d, Y"|default:"-" }}</span>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="bg-gray-700/50 rounded-xl p-6">
-          <h3 class="text-sm font-medium text-gray-300 uppercase tracking-wider mb-4">Quick Actions</h3>
+        
+        <!-- Quick Actions Card -->
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-5 flex items-center">
+            <i class="fas fa-bolt mr-3 text-amber-400"></i>
+            Quick Actions
+          </h3>
+          
           <div class="space-y-2">
-            <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-gray-600/50 rounded-lg transition-colors">
-              <i class="fas fa-shield-alt w-5 text-blue-400 mr-3"></i>
-              <span>Privacy Settings</span>
+            <a href="#" class="flex items-center p-3 rounded-xl hover:bg-white/5 transition-colors group">
+              <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20 transition-colors mr-3">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-white">Privacy Settings</p>
+                <p class="text-xs text-gray-400">Manage your privacy preferences</p>
+              </div>
+              <i class="fas fa-chevron-right ml-auto text-gray-500 text-xs"></i>
             </a>
-            <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-gray-600/50 rounded-lg transition-colors">
-              <i class="fas fa-bell w-5 text-yellow-400 mr-3"></i>
-              <span>Notification Preferences</span>
+            
+            <a href="#" class="flex items-center p-3 rounded-xl hover:bg-white/5 transition-colors group">
+              <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 transition-colors mr-3">
+                <i class="fas fa-bell"></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-white">Notifications</p>
+                <p class="text-xs text-gray-400">Customize alerts</p>
+              </div>
+              <i class="fas fa-chevron-right ml-auto text-gray-500 text-xs"></i>
             </a>
-            <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-gray-600/50 rounded-lg transition-colors">
-              <i class="fas fa-question-circle w-5 text-purple-400 mr-3"></i>
-              <span>Help & Support</span>
+            
+            <a href="#" class="flex items-center p-3 rounded-xl hover:bg-white/5 transition-colors group">
+              <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20 transition-colors mr-3">
+                <i class="fas fa-question-circle"></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-white">Help & Support</p>
+                <p class="text-xs text-gray-400">Get assistance</p>
+              </div>
+              <i class="fas fa-chevron-right ml-auto text-gray-500 text-xs"></i>
             </a>
           </div>
+        </div>
+        
+        <!-- Security Tips -->
+        <div class="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 rounded-2xl p-6 shadow-lg border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-3 flex items-center">
+            <i class="fas fa-lock mr-2"></i>
+            Security Tips
+          </h3>
+          <p class="text-sm text-gray-300 mb-4">Keep your account secure with these tips:</p>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-emerald-400 mt-0.5 mr-2"></i>
+              <span>Use a strong, unique password</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-emerald-400 mt-0.5 mr-2"></i>
+              <span>Enable two-factor authentication</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check-circle text-emerald-400 mt-0.5 mr-2"></i>
+              <span>Review login activity regularly</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Custom Styles -->
 <style>
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   
   ::-webkit-scrollbar-track {
-    background: #1f2937;
+    background: rgba(17, 24, 39, 0.8);
+    border-radius: 4px;
   }
   
   ::-webkit-scrollbar-thumb {
-    background: #4b5563;
-    border-radius: 3px;
+    background: rgba(79, 70, 229, 0.6);
+    border-radius: 4px;
+    transition: background 0.2s;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: #6b7280;
+    background: rgba(99, 102, 241, 0.8);
   }
   
   /* Animation for cards */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0);
+    }
   }
   
   .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
+    animation: fadeInUp 0.5s ease-out forwards;
   }
   
-  /* Custom checkbox */
-  .custom-checkbox:checked {
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
-    border-color: transparent;
-    background-color: #3b82f6;
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(90deg, #818cf8, #c7d2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Glow effect */
+  .glow {
+    position: relative;
+  }
+  
+  .glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(168, 85, 247, 0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 </style>
 
 <script>
-  // Add any interactive functionality here
+  // Add interactive functionality
   document.addEventListener('DOMContentLoaded', function() {
-    // Add fade-in animation to cards
-    const cards = document.querySelectorAll('.bg-gray-700\/50, .bg-gradient-to-r');
+    // Add fade-in animation to all cards with a staggered delay
+    const cards = document.querySelectorAll('.bg-white\/5, .bg-gradient-to-br');
     cards.forEach((card, index) => {
-      card.classList.add('animate-fade-in');
       card.style.animationDelay = `${index * 0.1}s`;
+      card.classList.add('animate-fade-in');
+    });
+    
+    // Add hover effect to action cards
+    const actionCards = document.querySelectorAll('a[href^="#"], button');
+    actionCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.classList.add('hover-lift');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('hover-lift');
+      });
+    });
+    
+    // Add smooth scroll to anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
     });
   });
 </script>
-{% endblock %} 
+{% endblock %}

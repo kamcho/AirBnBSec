@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.views.generic import TemplateView, CreateView, UpdateView, ListView, DetailView, FormView
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse_lazy
@@ -108,6 +108,11 @@ class UserLoginView(TemplateView):
         if request.user.is_authenticated:
             return redirect('home:incident_dashboard')
         return super().get(request, *args, **kwargs)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', '')
+        return context
 
     def post(self, request, *args, **kwargs):
         email = request.POST.get('email')
@@ -131,12 +136,24 @@ class UserLoginView(TemplateView):
         
         if user is not None:
             login(request, user)
+            next_url = request.POST.get('next')
+            
+            # Default redirect if no next URL is provided
+            if not next_url:
+                next_url = reverse('home:incident_dashboard')
+            # Handle legacy incident_dashboard URL
+            elif next_url == 'incident_dashboard':
+                next_url = reverse('home:incident_dashboard')
+            # Ensure the URL is absolute
+            elif not next_url.startswith(('http://', 'https://', '/')):
+                next_url = f'/{next_url}'
+            
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
-                    'redirect': '/incidents/dashboard/'
+                    'redirect': next_url
                 })
-            return redirect('incident_dashboard')
+            return redirect(next_url)
         else:
             error_msg = 'Invalid email or password.'
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
