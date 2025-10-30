@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from home.views import test_view
 from django.views.decorators.http import require_http_methods
 app_name = 'home'
 
@@ -35,7 +36,7 @@ urlpatterns = [
     # Comment management URLs
     path('incidents/<int:incident_id>/add-comment/', views.add_comment, name='add_comment'),
     path('comments/<int:comment_id>/delete/', require_http_methods(['POST'])(views.delete_comment), name='delete_comment'),
-    
+        path('test/', test_view),
     # Video management URLs
     path('incidents/<int:incident_id>/upload-video/', views.upload_explainer_video, name='upload_video'),
     path('videos/<int:video_id>/delete/', require_http_methods(['POST'])(views.delete_explainer_video), name='delete_video'),

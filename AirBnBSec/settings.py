@@ -105,29 +105,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Security settings - different in development vs production
-if not DEBUG:
     # HTTPS settings
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
     
-    # HTTP Strict Transport Security
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    
-    # Additional security headers
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
-    
-    # For proxy/load balancer setups
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-else:
-    # Development settings
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
-    SECURE_SSL_REDIRECT = False
 
 ALLOWED_HOSTS = ['www.tourske.com','127.0.0.1','localhost','tourske.com','13.60.251.46']
 

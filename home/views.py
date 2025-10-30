@@ -1099,3 +1099,8 @@ def delete_explainer_video(request, video_id):
         })
         
     return redirect('home:incident_detail', pk=incident_id)
+# home/views.py
+from django.http import HttpResponse
+
+def test_view(request):
+    return HttpResponse("Hello World")
