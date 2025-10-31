@@ -110,7 +110,7 @@ CSRF_TRUSTED_ORIGINS = [
     # HTTPS settings
     
 
-ALLOWED_HOSTS = ['127.0.0.1','arhythmically-unciliated-danna.ngrok-free.dev']
+ALLOWED_HOSTS = ['127.0.0.1','arhythmically-unciliated-danna.ngrok-free.dev','www.tourske.com','tourske.com']
 
 SECURE_SSL_REDIRECT = False
 
