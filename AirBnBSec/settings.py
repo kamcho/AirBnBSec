@@ -100,7 +100,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Security settings
 CSRF_TRUSTED_ORIGINS = [
-    'http://www.tourske.com',
+    'https://www.tourske.com',
     'https://tourske.com',
 ]
 

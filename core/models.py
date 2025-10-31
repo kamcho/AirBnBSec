@@ -4,6 +4,24 @@ from django.utils import timezone
 from users.models import Client
 import json
 
+class FreeTrial(models.Model):
+    """Tracks free trial usage for a user."""
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='free_trial'
+    )
+    count = models.PositiveIntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+    expiry = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Free Trial'
+        verbose_name_plural = 'Free Trials'
+
+    def __str__(self):
+        return f"{getattr(self.user, 'email', self.user_id)} free trial: {self.count} left"
+
 class VerificationRequest(models.Model):
     """
     Model to track verification requests made via WhatsApp

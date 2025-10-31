@@ -321,7 +321,7 @@ def whatsapp_webhook(request):
                                                     verification_request.save()
                                                         
                                                 except Client.DoesNotExist:
-                                                    incident_heading = "\n\nℹ️ No client profile found in our system."
+                                                    incident_heading = "\n\nℹ️ This client doesnt have previous reported offences."
                                                     incidents_text = ""
                                                     # Save the verification request even if no client is found
                                                     verification_request.save()
