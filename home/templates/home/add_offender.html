@@ -478,6 +478,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             <h5 class="text-gray-300 mb-4">Please provide the correct details</h5>
                             <form id="manualDetailsForm">
                                 <div class="mb-3">
+                                    <label for="manualIdNumber" class="form-label text-gray-300">ID Number</label>
+                                    <input type="text" class="form-control bg-gray-800 border-gray-700 text-gray-300" 
+                                           id="manualIdNumber" placeholder="e.g., 12345678" pattern="[0-9]{6,10}">
+                                </div>
+                                <div class="mb-3">
                                     <label for="manualFirstName" class="form-label text-gray-300">First Name <span class="text-red-500">*</span></label>
                                     <input type="text" class="form-control bg-gray-800 border-gray-700 text-gray-300" 
                                            id="manualFirstName" required>
@@ -515,33 +520,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     resultEl.addEventListener('submit', function(e) {
                         if (e.target && e.target.id === 'manualDetailsForm') {
                             e.preventDefault();
+                            const idNum = document.getElementById('manualIdNumber').value.trim();
                             const firstName = document.getElementById('manualFirstName').value.trim();
                             const lastName = document.getElementById('manualLastName').value.trim();
                             const phone = document.getElementById('manualPhone').value.trim();
                             const email = document.getElementById('manualEmail').value.trim();
                             
-                            // Update the main form fields
-                            const mainForm = document.querySelector('form[method="post"]');
-                            if (mainForm) {
-                                const firstNameField = mainForm.querySelector('input[name="first_name"]');
-                                const lastNameField = mainForm.querySelector('input[name="last_name"]');
-                                const phoneField = mainForm.querySelector('input[name="phone"]');
-                                const emailField = mainForm.querySelector('input[name="email"]');
-                                
-                                if (firstNameField) firstNameField.value = firstName;
-                                if (lastNameField) lastNameField.value = lastName;
-                                if (phoneField) phoneField.value = phone;
-                                if (emailField && email) emailField.value = email;
-                                
-                                // Show success message
-                                resultEl.innerHTML = `
-                                    <div class="p-3 bg-green-900/30 border border-green-800 rounded-md">
-                                        <div class="flex items-center text-green-400">
-                                            <i class="fas fa-check-circle mr-2"></i>
-                                            <span>Details updated successfully</span>
-                                        </div>
-                                    </div>`;
+                            // Basic client-side validation for required fields
+                            if (!firstName) {
+                                alert('First name is required');
+                                return;
                             }
+                            if (!phone) {
+                                alert('Phone number is required');
+                                return;
+                            }
+
+                            // Show success message and keep values on screen
+                            resultEl.innerHTML = `
+                                <div class="p-3 bg-green-900/30 border border-green-800 rounded-md">
+                                    <div class="flex items-center text-green-400 mb-2">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        <span>Details captured</span>
+                                    </div>
+                                    <div class="text-gray-300 text-sm">
+                                        ${idNum ? `<div><strong>ID:</strong> ${idNum}</div>` : ''}
+                                        <div><strong>First Name:</strong> ${firstName}</div>
+                                        ${lastName ? `<div><strong>Last Name:</strong> ${lastName}</div>` : ''}
+                                        <div><strong>Phone:</strong> ${phone}</div>
+                                        ${email ? `<div><strong>Email:</strong> ${email}</div>` : ''}
+                                    </div>
+                                </div>`;
                         }
                     });
                     
@@ -556,12 +565,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Add event listeners using event delegation since the buttons are dynamically created
                 document.addEventListener('click', function(e) {
-                    // Handle 'The names dont match' button
-                    if (e.target && e.target.id === 'confirmNo') {
-                        setupManualDetailsForm();
+                    // Handle 'The names dont match' button (use closest to catch icon/text clicks)
+                    if (e.target && e.target.closest && e.target.closest('#confirmNo')) {
+                        const incidentId = window.location.pathname.split('/')[2];
+                        const url = new URL(window.location.origin + `/incidents/${incidentId}/add-client-alias/`);
+                        url.searchParams.set('id_number', idNumber);
+                        url.searchParams.set('api_name', personName);
+                        window.location.href = url.toString();
                     }
                     // Handle 'Yes, Continue' button
-                    else if (e.target && e.target.id === 'confirmYes') {
+                    else if (e.target && e.target.closest && e.target.closest('#confirmYes')) {
                         // Show the contact information form
                         resultEl.innerHTML = `
                             <div class="mb-3">

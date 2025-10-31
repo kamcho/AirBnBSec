@@ -6,6 +6,7 @@ app_name = 'home'
 
 urlpatterns = [
     path('', views.LandingPageView.as_view(), name='landing'),
+    path('privacy-policy/', views.PrivacyPolicyView.as_view(), name='privacy_policy'),
     path('verify-client/', views.verify_client, name='verify_client'),
     path('verify-client/<str:verification_token>/', views.verify_client, name='verify_client_token'),
     
@@ -21,6 +22,7 @@ urlpatterns = [
     
     # Client management URLs
     path('incidents/<int:incident_id>/add-client/', views.AddClientToIncidentView.as_view(), name='add_client_to_incident'),
+    path('incidents/<int:incident_id>/add-client-alias/', views.AddClientAliasView.as_view(), name='add_client_alias'),
     path('incidents/<int:incident_id>/add-contact/', views.add_client_contact, name='add_client_contact'),
     
     path('incidents/<int:pk>/', views.SecurityIncidentDetailView.as_view(), name='incident_detail'),

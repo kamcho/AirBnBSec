@@ -32,6 +32,10 @@ from .forms import (
 # Create your views here.
 class LandingPageView(TemplateView):
     template_name = 'home/landing.html'
+
+class PrivacyPolicyView(TemplateView):
+    template_name = 'home/privacy_policy.html'
+
 def verify_client(request, verification_token=None):
     """
     View to verify client's KRA details using ID number
@@ -982,6 +986,108 @@ class AddClientToIncidentView(View):
             'user_type': user_type,
         })
 
+
+class AddClientAliasView(LoginRequiredMixin, View):
+    template_name = 'home/add_client_alias.html'
+    login_url = '/accounts/login/'
+
+    def get(self, request, incident_id):
+        incident = get_object_or_404(SecurityIncident, pk=incident_id)
+        id_number = request.GET.get('id_number', '').strip()
+        api_name = request.GET.get('api_name', '').strip()
+
+        # Parse API name into first/last (simple split)
+        api_first = ''
+        api_last = ''
+        if api_name:
+            parts = [p for p in api_name.split(' ') if p]
+            if parts:
+                api_first = ' '.join(parts[:-1]) if len(parts) > 1 else parts[0]
+                api_last = parts[-1] if len(parts) > 1 else ''
+
+        return render(request, self.template_name, {
+            'incident': incident,
+            'id_number': id_number,
+            'api_first_name': api_first,
+            'api_last_name': api_last,
+            'api_full_name': api_name,
+        })
+
+    def post(self, request, incident_id):
+        incident = get_object_or_404(SecurityIncident, pk=incident_id)
+
+        # Hidden fields carrying API names
+        api_first = request.POST.get('api_first_name', '').strip()
+        api_last = request.POST.get('api_last_name', '').strip()
+        id_number = request.POST.get('id_number', '').strip() or None
+
+        # Alias fields from user
+        alias_first = request.POST.get('alias_first_name', '').strip()
+        alias_last = request.POST.get('alias_last_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        if not alias_first:
+            messages.error(request, 'First name is required for alias.')
+            return render(request, self.template_name, {
+                'incident': incident,
+                'id_number': id_number or '',
+                'api_first_name': api_first,
+                'api_last_name': api_last,
+                'api_full_name': (api_first + ' ' + api_last).strip(),
+            })
+
+        if not phone:
+            messages.error(request, 'Phone number is required.')
+            return render(request, self.template_name, {
+                'incident': incident,
+                'id_number': id_number or '',
+                'api_first_name': api_first,
+                'api_last_name': api_last,
+                'api_full_name': (api_first + ' ' + api_last).strip(),
+            })
+
+        # Create or reuse a client based on ID number if provided
+        client = None
+        if id_number:
+            client = Client.objects.filter(id_number=id_number).first()
+
+        if not client:
+            client = Client.objects.create(
+                id_number=id_number,
+                first_name=api_first or None,
+                last_name=api_last or None,
+            )
+
+        # Save alias from user input
+        NameAlias.objects.create(
+            client=client,
+            first_name=alias_first,
+            last_name=alias_last or None,
+        )
+
+        # Save contacts
+        if phone:
+            ClientContact.objects.update_or_create(
+                client=client,
+                contact_type='phone',
+                contact=phone,
+                defaults={'contact': phone}
+            )
+        if email:
+            ClientContact.objects.update_or_create(
+                client=client,
+                contact_type='email',
+                contact=email,
+                defaults={'contact': email}
+            )
+
+        # Link client to incident
+        incident.client = client
+        incident.save()
+
+        messages.success(request, 'Client created from API names and alias saved. Linked to incident.')
+        return redirect('home:incident_detail', pk=incident.pk)
 
 class AddEvidenceView(View):
     """View for adding evidence to an incident"""
