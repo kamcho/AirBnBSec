@@ -12,13 +12,37 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from .utils import verify_kra_details
 from home.models import SecurityIncident
-from users.models import Client
-from .models import VerificationRequest
+from users.models import Client, PersonalProfile
+from users.models import Subscription
+from .models import VerificationRequest, FreeTrial
 import re
 from django.urls import reverse
 from django.conf import settings
 from django.utils import timezone
 
+
+def _phone_variants(raw_phone):
+    """Generate common variants for matching stored phone numbers."""
+    if not raw_phone:
+        return []
+    p = str(raw_phone).strip()
+    variants = set()
+    # Raw and trimmed
+    variants.add(p)
+    variants.add(p.replace('whatsapp:', ''))
+    # Ensure no plus
+    p_np = p.replace('+', '')
+    variants.add(p_np)
+    # Add + variant
+    variants.add('+' + p_np)
+    # If startswith 2547..., add 07...
+    if p_np.startswith('2547') and len(p_np) >= 12:
+        variants.add('0' + p_np[3:])
+    # If startswith 07..., add 2547...
+    if p_np.startswith('07') and len(p_np) >= 10:
+        variants.add('254' + p_np[1:])
+        variants.add('+254' + p_np[1:])
+    return list(variants)
 
 def extract_id_number(message):
     """
@@ -264,6 +288,67 @@ def whatsapp_webhook(request):
                                         
                                         if id_number:
                                             print(f"📋 Verifying ID: {id_number}")
+
+                                            # Resolve user by phone and enforce subscription/free trial
+                                            using_trial = False
+                                            resolved_user = None
+                                            try:
+                                                variants = _phone_variants(sender_phone)
+                                                profile = PersonalProfile.objects.filter(phone__in=variants).select_related('user').first()
+                                                if profile and profile.user:
+                                                    resolved_user = profile.user
+                                                    print(
+                                                        "[whatsapp_webhook] system checking subscription for user",
+                                                        getattr(resolved_user, 'email', resolved_user.id),
+                                                        "of phone number",
+                                                        sender_phone,
+                                                        flush=True
+                                                    )
+                                                    subscription = getattr(resolved_user, 'subscription', None)
+                                                    print(
+                                                        "[whatsapp_webhook] subscription status:",
+                                                        {"has_sub": bool(subscription), "is_active": bool(subscription and subscription.is_active)},
+                                                        flush=True
+                                                    )
+                                                    if not (subscription and subscription.is_active):
+                                                        trial, created = FreeTrial.objects.get_or_create(user=resolved_user)
+                                                        if created:
+                                                            trial.count = 3
+                                                            trial.expiry = timezone.now() + timezone.timedelta(days=7)
+                                                            trial.save(update_fields=['count', 'expiry'])
+                                                            print("[whatsapp_webhook] trial initialized:", {"count": trial.count, "expiry": trial.expiry}, flush=True)
+                                                        print(
+                                                            "[whatsapp_webhook] freetrial status:",
+                                                            {"exists": True, "count": getattr(trial, 'count', None), "expiry": getattr(trial, 'expiry', None)},
+                                                            flush=True
+                                                        )
+                                                        # Block if expired or no count
+                                                        if (trial.expiry and timezone.now() > trial.expiry) or (trial.count or 0) <= 0:
+                                                            base_url = getattr(settings, 'SITE_URL', '').rstrip('/')
+                                                            payment_url = getattr(settings, 'PAYMENT_URL', '').strip()
+                                                            if not payment_url:
+                                                                try:
+                                                                    pay_path = reverse('payments:pay')  # use named URL if defined
+                                                                except Exception:
+                                                                    pay_path = '/api/payments/pay/'
+                                                                payment_url = f"https://tourske.com/api/payments/pay/"
+                                                            msg = (
+                                                                "🚫 Your free trial has ended.\n\n"
+                                                                "You’ve reached the limit of complimentary verifications. To keep protecting your property and guests, upgrade now to unlock unlimited checks and instant alerts.\n\n"
+                                                                "✅ Fast, reliable verifications\n"
+                                                                "🛡️ Reduce fraud and risky bookings\n"
+                                                                "📊 Access incident insights\n\n"
+                                                                f"👉 Subscribe here: {payment_url}\n\n"
+                                                                "For ksh 100 only per month"
+                                                            )
+                                                            print("[whatsapp_webhook] trial blocked send message", flush=True)
+                                                            _ = send_message(sender_phone, msg)
+                                                            return JsonResponse({'status': 'ok'})
+                                                        using_trial = True
+                                                else:
+                                                    print("[whatsapp_webhook] no profile/user resolved for phone", sender_phone, flush=True)
+                                            except Exception as dbg_e:
+                                                print("[whatsapp_webhook] debug check failed:", dbg_e, flush=True)
                                             
                                             # Create verification request record
                                             verification_request = VerificationRequest(
@@ -326,6 +411,7 @@ def whatsapp_webhook(request):
                                                     # Save the verification request even if no client is found
                                                     verification_request.save()
                                                 
+                                                # Build response
                                                 response_message = (
                                                     "🔍 *Verification Result* 🔍\n\n"
                                                     f"✅ *Verification Successful!*\n"
@@ -339,6 +425,18 @@ def whatsapp_webhook(request):
                                                     "https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n\n"
                                                     "Your vigilance helps keep our community safe! 🛡️"
                                                 )
+                                                # Decrement trial on success
+                                                if using_trial and resolved_user:
+                                                    try:
+                                                        trial = FreeTrial.objects.select_for_update().get(user=resolved_user)
+                                                    except FreeTrial.DoesNotExist:
+                                                        trial = None
+                                                    if trial:
+                                                        before = trial.count or 0
+                                                        trial.count = max(0, before - 1)
+                                                        trial.save(update_fields=['count'])
+                                                        print("[whatsapp_webhook] trial decremented:", {"before": before, "after": trial.count}, flush=True)
+                                                        response_message += f"\n\n🆓 Free trial remaining: {trial.count}"
                                                 print(f"✅ Verified: {verified_name}")
                                             else:
                                                 # Update verification request with failure data

@@ -37,6 +37,9 @@ urlpatterns = [
     path('incidents/<int:incident_id>/add-comment/', views.add_comment, name='add_comment'),
     path('comments/<int:comment_id>/delete/', require_http_methods(['POST'])(views.delete_comment), name='delete_comment'),
         path('test/', test_view),
+    # Offender management URLs
+    path('incidents/<int:pk>/add-offender/', views.AddOffenderView.as_view(), name='add_offender'),
+    
     # Video management URLs
     path('incidents/<int:incident_id>/upload-video/', views.upload_explainer_video, name='upload_video'),
     path('videos/<int:video_id>/delete/', require_http_methods(['POST'])(views.delete_explainer_video), name='delete_video'),

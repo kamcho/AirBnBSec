@@ -132,10 +132,27 @@ def verify_kra_details(kra_pin):
         print("Response:", response.text)
         print("======================\n")
         
-        # Check if the request was successful
-        if response.status_code == 200:
-            try:
-                data = response.json()
+        # Parse the response
+        try:
+            data = response.json()
+            print("\n=== KRA API Response Data ===")
+            print(f"Response: {data}")
+            print("==========================\n")
+            
+            # Check if the response contains an error
+            if 'ErrorCode' in data:
+                error_msg = data.get('ErrorMessage', 'KRA verification failed')
+                print(f"\n=== KRA Verification Failed ===")
+                print(f"Error: {error_msg}")
+                print("============================\n")
+                return {
+                    'success': False,
+                    'data': data,
+                    'message': error_msg
+                }
+            
+            # Check if we have valid taxpayer data
+            if data.get('TaxpayerName'):
                 print("\n=== KRA Verification Success ===")
                 print(f"Taxpayer Name: {data.get('TaxpayerName')}")
                 print(f"Taxpayer PIN: {data.get('TaxpayerPIN')}")
@@ -145,19 +162,30 @@ def verify_kra_details(kra_pin):
                     'success': True,
                     'data': {
                         'name': data.get('TaxpayerName'),
-                        'pin': data.get('TaxpayerPIN')
+                        'pin': data.get('TaxpayerPIN'),
+                        'full_name': data.get('TaxpayerName')  # Add full_name for compatibility
                     },
                     'message': 'KRA verification successful'
                 }
-            except Exception as e:
-                print(f"\n=== Error Parsing Response ===")
-                print(f"Error: {str(e)}")
-                print("Raw Response:", response.text)
-                print("==========================\n")
+            else:
+                error_msg = 'No taxpayer information found for this ID'
+                print(f"\n=== KRA Verification Failed ===")
+                print(f"Error: {error_msg}")
+                print("============================\n")
                 return {
                     'success': False,
-                    'message': 'Error parsing KRA API response'
+                    'data': data,
+                    'message': error_msg
                 }
+        except Exception as e:
+            print(f"\n=== Error Parsing Response ===")
+            print(f"Error: {str(e)}")
+            print("Raw Response:", response.text)
+            print("==========================\n")
+            return {
+                'success': False,
+                'message': 'Error parsing KRA API response'
+            }
         else:
             error_data = response.json()
             error_msg = error_data.get('ErrorMessage', 'Unknown error')

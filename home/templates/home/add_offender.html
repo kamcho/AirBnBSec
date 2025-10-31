@@ -1,0 +1,870 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Select Offender Type{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { 
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 20px;
+    }
+    .conditional-field {
+        display: none;
+        margin-top: 1rem;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .id-input, 
+    #foreignerForm .form-control,
+    #foreignerForm .form-select,
+    #foreignerForm input[type="text"],
+    #foreignerForm input[type="email"],
+    #foreignerForm input[type="tel"] {
+        background: #1f2937 !important;
+        border: 1px solid #4b5563 !important;
+        color: #e5e7eb !important;
+        padding: 0.75rem 1rem !important;
+        border-radius: 0.5rem !important;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    
+    #foreignerForm .input-group-text {
+        background: #1f2937 !important;
+        border: 1px solid #4b5563 !important;
+        color: #9ca3af !important;
+        border-right: none !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+    
+    #foreignerForm .form-label {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    #foreignerForm .form-text {
+        color: #6b7280 !important;
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    #foreignerForm .input-group > .form-control:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
+    }
+    
+    #foreignerForm .input-group > .input-group-text:first-child {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    
+    #foreignerForm select.form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.5rem center !important;
+        background-size: 16px 12px !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        padding-right: 2rem !important;
+    }
+    
+    #foreignerForm select.form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
+        border-color: #60a5fa !important;
+    }
+    
+    #foreignerForm .input-group > .form-control:focus {
+        border-color: #4b5563;
+        box-shadow: none;
+    }
+    
+    #foreignerForm .input-group:focus-within .input-group-text {
+        border-color: #60a5fa;
+    }
+    .id-input:focus {
+        border-color: #60a5fa !important;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25) !important;
+        outline: none;
+    }
+    .verify-btn {
+        background-color: #1f2937 !important;
+        border-color: #4b5563 !important;
+        color: #60a5fa !important;
+        transition: all 0.2s ease;
+    }
+    .verify-btn:hover {
+        background-color: #1e40af !important;
+        color: #ffffff !important;
+        border-color: #60a5fa !important;
+    }
+    .verify-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    #verificationResult {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        display: none;
+    }
+    .verification-success {
+        color: #10b981;
+        background-color: #064e3b20;
+        border-left: 3px solid #10b981;
+    }
+    .verification-error {
+        color: #ef4444;
+        background-color: #7f1d1d20;
+        border-left: 3px solid #ef4444;
+    }
+    .id-label {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .selection-card {
+        background: #111827;
+        border-radius: 12px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+    }
+    h2 {
+        color: white;
+        margin-bottom: 2rem;
+    }
+    .form-check {
+        margin: 1rem 0;
+        text-align: left;
+        padding: 1rem;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        background: #1f2937;
+        cursor: pointer;
+    }
+    .form-check-input {
+        margin-right: 0.5rem;
+    }
+    .form-check-label {
+        color: #e5e7eb;
+        font-size: 1.1rem;
+    }
+    .btn-continue {
+        margin-top: 2rem;
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border: none;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .btn-continue:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    }
+    .btn-continue:disabled {
+        background: #4b5563;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="selection-card">
+    <h2>Select Offender Type</h2>
+    
+    <form method="post" id="offenderTypeForm">
+        {% csrf_token %}
+        
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="offender_type" 
+                   id="citizen" value="citizen" required>
+            <label class="form-check-label" for="citizen">
+                <i class="fas fa-user-tie me-2"></i> Kenyan Citizen
+            </label>
+            <div id="idNumberField" class="conditional-field">
+                <label for="id_number" class="id-label">National ID Number</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-gray-800 border-gray-700 text-gray-300">
+                        <i class="fas fa-id-card"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control id-input" 
+                           id="id_number" 
+                           name="id_number" 
+                           pattern="[0-9]{8,9}" 
+                           title="Please enter a valid Kenyan ID (8-9 digits)"
+                           placeholder="e.g., 12345678"
+                           autocomplete="off">
+                    <button type="button" 
+                            class="btn btn-outline-primary verify-btn" 
+                            id="verifyIdBtn"
+                            title="Verify ID with KRA">
+                        <i class="fas fa-check-circle me-1"></i> Verify
+                    </button>
+                </div>
+                <div class="form-text text-gray-400 text-start mt-1 d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-info-circle me-1"></i> 8-9 digit Kenyan National ID</span>
+                    <span id="verificationStatus" class="d-none">
+                        <i class="fas fa-spinner fa-spin me-1"></i>
+                        <span>Verifying...</span>
+                    </span>
+                </div>
+                <div id="verificationResult" class="mt-2"></div>
+            </div>
+        </div>
+        
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="offender_type" 
+                   id="foreigner" value="foreigner">
+            <label class="form-check-label" for="foreigner">
+                <i class="fas fa-globe-africa me-2"></i> Foreign National
+            </label>
+            
+            <!-- Foreigner Information Form (initially hidden) -->
+            <div id="foreignerForm" class="mt-3 p-4 bg-gray-800 rounded-lg border border-gray-700" style="display: none; background: #1f2937 !important; border-color: #374151 !important;">
+                <h5 class="text-white mb-4 text-lg font-medium">Foreign National Information</h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="foreignerFirstName" class="form-label">
+                            <i class="fas fa-user me-2"></i>First Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control bg-gray-700 border-gray-600 text-white" 
+                               id="foreignerFirstName" 
+                               name="foreigner_first_name"
+                               required
+                               placeholder="Enter first name">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="foreignerLastName" class="form-label">
+                            <i class="fas fa-user me-2"></i>Last Name (Optional)
+                        </label>
+                        <input type="text" 
+                               class="form-control bg-gray-700 border-gray-600 text-white" 
+                               id="foreignerLastName" 
+                               name="foreigner_last_name"
+                               placeholder="Enter last name">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="foreignerId" class="form-label">
+                        <i class="fas fa-passport me-2"></i>Passport/ID Number (Optional)
+                    </label>
+                    <input type="text" 
+                           class="form-control bg-gray-700 border-gray-600 text-white" 
+                           id="foreignerId" 
+                           name="foreigner_id"
+                           placeholder="Enter passport or ID number">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="foreignerEmail" class="form-label">
+                        <i class="fas fa-envelope me-2"></i>Email Address
+                    </label>
+                    <input type="email" 
+                           class="form-control bg-gray-700 border-gray-600 text-white" 
+                           id="foreignerEmail" 
+                           name="foreigner_email"
+                           placeholder="e.g., example@domain.com">
+                    <div class="form-text">At least one contact method is required</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="foreignerPhone" class="form-label">
+                        <i class="fas fa-phone me-2"></i>Phone Number <span class="text-red-500">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text p-0" style="min-width: 130px; background: #1f2937 !important; border: 1px solid #4b5563 !important; border-right: none !important;">
+                            <span class="px-2 text-gray-300">+</span>
+                            <select class="form-select form-select-sm border-0 text-white ps-1 pe-3 h-100" id="countryCode" name="country_code" style="background: #1f2937 !important; cursor: pointer;">
+                                <option value="1">1 (US/CA)</option>
+                                <option value="44">44 (UK)</option>
+                                <option value="91">91 (IN)</option>
+                                <option value="27">27 (ZA)</option>
+                                <option value="255">255 (TZ)</option>
+                                <option value="256">256 (UG)</option>
+                                <option value="250">250 (RW)</option>
+                                <option value="254" selected>254 (KE)</option>
+                                <option value="255">255 (TZ)</option>
+                                <option value="256">256 (UG)</option>
+                                <option value="257">257 (BI)</option>
+                                <option value="258">258 (MZ)</option>
+                                <option value="260">260 (ZM)</option>
+                                <option value="263">263 (ZW)</option>
+                            </select>
+                        </span>
+                        <input type="tel" 
+                               class="form-control bg-gray-700 border-gray-600 text-white" 
+                               id="foreignerPhone" 
+                               name="foreigner_phone"
+                               required
+                               placeholder="e.g., 712345678"
+                               pattern="[0-9]{8,15}">
+                    </div>
+                    <div class="form-text">Enter phone number without country code</div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn-continue" id="continueBtn" disabled>
+            Continue <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('offenderTypeForm');
+    const continueBtn = document.getElementById('continueBtn');
+    const radioInputs = document.querySelectorAll('input[type="radio"][name="offender_type"]');
+    const idNumberField = document.getElementById('idNumberField');
+    const idNumberInput = document.getElementById('id_number');
+    
+    // Show/hide fields based on selection
+    function toggleIdField() {
+        const isKenyan = document.getElementById('citizen').checked;
+        const isForeigner = document.getElementById('foreigner').checked;
+        const foreignerForm = document.getElementById('foreignerForm');
+        
+        // Toggle Kenyan ID field
+        if (idNumberField) {
+            idNumberField.style.display = isKenyan ? 'block' : 'none';
+            idNumberInput.required = isKenyan;
+        }
+        
+        // Toggle foreigner form
+        if (foreignerForm) {
+            foreignerForm.style.display = isForeigner ? 'block' : 'none';
+        }
+        
+        // Update form validation
+        validateForm();
+        
+        // Enable/disable continue button based on validation
+    }
+    
+    // Validate form
+    function validateForm() {
+        const isKenyan = document.getElementById('citizen')?.checked || false;
+        const isForeigner = document.getElementById('foreigner')?.checked || false;
+        let isValid = true;
+        
+        if (isKenyan) {
+            // For Kenyans, validate ID number
+            isValid = idNumberInput.value.match(/^[0-9]{8,9}$/);
+        } else if (isForeigner) {
+            // For foreigners, first name and phone are required
+            const firstName = document.getElementById('foreignerFirstName')?.value.trim();
+            const phone = document.getElementById('foreignerPhone')?.value.trim();
+            const email = document.getElementById('foreignerEmail')?.value.trim();
+            
+            // Check required fields
+            if (!firstName) {
+                isValid = false;
+            }
+            
+            // Phone is required and must be valid
+            if (!phone || !/^[0-9]{8,15}$/.test(phone)) {
+                isValid = false;
+            }
+            
+            // If email is provided, validate it
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                isValid = false;
+            }
+        }
+        
+        // Enable/disable continue button
+        continueBtn.disabled = !isKenyan && !isForeigner || !isValid;
+        
+        return isValid;
+    }
+    
+    // Add event listeners
+    radioInputs.forEach(radio => {
+        radio.addEventListener('change', toggleIdField);
+    });
+    
+    // Add input event listeners for validation
+    if (idNumberInput) {
+        idNumberInput.addEventListener('input', validateForm);
+    }
+    
+    // Add input event listeners for foreigner form fields
+    const foreignerFormInputs = ['foreignerEmail', 'foreignerPhone', 'foreignerFirstName', 'foreignerLastName'];
+    
+    foreignerFormInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', validateForm);
+        }
+    });
+    
+    // Add input event listeners for foreigner form fields
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('#foreignerEmail, #foreignerPhone, #foreignerId')) {
+            validateForm();
+        }
+    });
+    
+    // Initial setup
+    toggleIdField();
+    
+    // Function to handle KRA verification
+    async function verifyKraDetails(idNumber) {
+        const verifyBtn = document.getElementById('verifyIdBtn');
+        const statusEl = document.getElementById('verificationStatus');
+        const resultEl = document.getElementById('verificationResult');
+        
+        try {
+            // Show loading state
+            verifyBtn.disabled = true;
+            statusEl.classList.remove('d-none');
+            resultEl.style.display = 'none';
+            
+            // Call the backend API to verify KRA details
+            const response = await fetch(`/api/core/verify-kra/${idNumber}/`);
+            const data = await response.json();
+            
+            // Update UI based on verification result
+            if (data.success) {
+                const personName = data.data.name || 'the verified individual';
+                resultEl.className = 'verification-success mt-2 p-2';
+                resultEl.innerHTML = `
+                    <div class="mb-2">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Verified:</strong> ${personName}
+                    </div>
+                    <div class="mt-3">
+                        <p class="mb-2">Is this the person you want to report?</p>
+                        <button type="button" class="btn btn-sm btn-success me-2" id="confirmYes">
+                            <i class="fas fa-check me-1"></i> Yes, Continue
+                        </button>
+                        <button type="button" class="px-4 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" id="confirmNo">
+                            <i class="fas fa-times mr-1"></i> The names dont match
+                        </button>
+                    </div>
+                `;
+                
+                // Function to handle manual details form
+                function setupManualDetailsForm() {
+                    // Show the manual entry form
+                    const formHTML = `
+                        <div class="mb-3">
+                            <h5 class="text-gray-300 mb-4">Please provide the correct details</h5>
+                            <form id="manualDetailsForm">
+                                <div class="mb-3">
+                                    <label for="manualFirstName" class="form-label text-gray-300">First Name <span class="text-red-500">*</span></label>
+                                    <input type="text" class="form-control bg-gray-800 border-gray-700 text-gray-300" 
+                                           id="manualFirstName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="manualLastName" class="form-label text-gray-300">Last Name</label>
+                                    <input type="text" class="form-control bg-gray-800 border-gray-700 text-gray-300" 
+                                           id="manualLastName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="manualPhone" class="form-label text-gray-300">Phone Number <span class="text-red-500">*</span></label>
+                                    <input type="tel" class="form-control bg-gray-800 border-gray-700 text-gray-300" 
+                                           id="manualPhone" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="manualEmail" class="form-label text-gray-300">Email Address</label>
+                                    <input type="email" class="form-control bg-gray-800 border-gray-700 text-gray-300" 
+                                           id="manualEmail">
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600" 
+                                            id="cancelManualEntry">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                                        Save Details
+                                    </button>
+                                </div>
+                            </form>
+                        </div>`;
+                    
+                    resultEl.innerHTML = formHTML;
+                    
+                    // Handle form submission with event delegation
+                    resultEl.addEventListener('submit', function(e) {
+                        if (e.target && e.target.id === 'manualDetailsForm') {
+                            e.preventDefault();
+                            const firstName = document.getElementById('manualFirstName').value.trim();
+                            const lastName = document.getElementById('manualLastName').value.trim();
+                            const phone = document.getElementById('manualPhone').value.trim();
+                            const email = document.getElementById('manualEmail').value.trim();
+                            
+                            // Update the main form fields
+                            const mainForm = document.querySelector('form[method="post"]');
+                            if (mainForm) {
+                                const firstNameField = mainForm.querySelector('input[name="first_name"]');
+                                const lastNameField = mainForm.querySelector('input[name="last_name"]');
+                                const phoneField = mainForm.querySelector('input[name="phone"]');
+                                const emailField = mainForm.querySelector('input[name="email"]');
+                                
+                                if (firstNameField) firstNameField.value = firstName;
+                                if (lastNameField) lastNameField.value = lastName;
+                                if (phoneField) phoneField.value = phone;
+                                if (emailField && email) emailField.value = email;
+                                
+                                // Show success message
+                                resultEl.innerHTML = `
+                                    <div class="p-3 bg-green-900/30 border border-green-800 rounded-md">
+                                        <div class="flex items-center text-green-400">
+                                            <i class="fas fa-check-circle mr-2"></i>
+                                            <span>Details updated successfully</span>
+                                        </div>
+                                    </div>`;
+                            }
+                        }
+                    });
+                    
+                    // Handle cancel button with event delegation
+                    resultEl.addEventListener('click', function(e) {
+                        if (e.target && e.target.id === 'cancelManualEntry') {
+                            resultEl.innerHTML = '';
+                            resultEl.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Add event listeners using event delegation since the buttons are dynamically created
+                document.addEventListener('click', function(e) {
+                    // Handle 'The names dont match' button
+                    if (e.target && e.target.id === 'confirmNo') {
+                        setupManualDetailsForm();
+                    }
+                    // Handle 'Yes, Continue' button
+                    else if (e.target && e.target.id === 'confirmYes') {
+                        // Show the contact information form
+                        resultEl.innerHTML = `
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-user-check text-success me-2"></i>
+                                    <span>Reporting: <strong>${personName}</strong></span>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="mb-4">
+                                        <label for="offenderEmail" class="form-label text-gray-300">
+                                            <i class="fas fa-envelope me-2"></i>Email Address
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-gray-800 border-gray-700 text-gray-300">
+                                                <i class="fas fa-at"></i>
+                                            </span>
+                                            <input type="email" 
+                                                   class="form-control bg-gray-800 border-gray-700 text-white" 
+                                                   id="offenderEmail" 
+                                                   placeholder="e.g., example@domain.com">
+                                        </div>
+                                        <div class="form-text text-gray-500 mt-1">
+                                            <i class="fas fa-info-circle me-1"></i> We'll use this to contact the person if needed
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="offenderPhone" class="form-label text-gray-300">
+                                            <i class="fas fa-phone me-2"></i>Phone Number
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-gray-800 border-gray-700 text-gray-300">
+                                                <i class="fas fa-mobile-alt"></i>
+                                            </span>
+                                            <input type="tel" 
+                                                   class="form-control bg-gray-800 border-gray-700 text-white" 
+                                                   id="offenderPhone" 
+                                                   placeholder="e.g., 712345678">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }
+                });
+
+                // Original button click handlers removed - now handled by event delegation above
+                document.getElementById('confirmYes').addEventListener('click', function() {
+                    // Show the contact information form
+                    resultEl.innerHTML = `
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user-check text-success me-2"></i>
+                                <span>Reporting: <strong>${personName}</strong></span>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="mb-4">
+                                    <label for="offenderEmail" class="form-label text-gray-300">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-gray-800 border-gray-700 text-gray-300">
+                                            <i class="fas fa-at"></i>
+                                        </span>
+                                        <input type="email" 
+                                               class="form-control bg-gray-800 border-gray-700 text-white" 
+                                               id="offenderEmail" 
+                                               placeholder="e.g., example@domain.com">
+                                    </div>
+                                    <div class="form-text text-gray-500 mt-1">
+                                        <i class="fas fa-info-circle me-1"></i> We'll use this to contact the person if needed
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="offenderPhone" class="form-label text-gray-300">
+                                        <i class="fas fa-phone me-2"></i>Phone Number
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-gray-800 border-gray-700 text-gray-300">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </span>
+                                        <input type="tel" 
+                                               class="form-control bg-gray-800 border-gray-700 text-white" 
+                                               id="offenderPhone" 
+                                               placeholder="e.g., 712345678" 
+                                               pattern="^(?:254|0)?[17]\d{8}$"
+                                               title="Please enter a valid Kenyan phone number">
+                                    </div>
+                                    <div class="form-text text-gray-500 mt-1">
+                                        <i class="fas fa-info-circle me-1"></i> Format: 712345678 or 0712345678 or 254712345678
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="backToVerify">
+                                        <i class="fas fa-arrow-left me-1"></i> Back
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="saveAndContinue">
+                                        Save and Continue <i class="fas fa-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add event listener for back button
+                    document.getElementById('backToVerify').addEventListener('click', function() {
+                        // Reset to verification result
+                        resultEl.innerHTML = `
+                            <div class="mb-2">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Verified:</strong> ${personName}
+                            </div>
+                            <div class="mt-3">
+                                <p class="mb-2">Is this the person you want to report?</p>
+                                <button type="button" class="btn btn-sm btn-success me-2" id="confirmYes">
+                                    <i class="fas fa-check me-1"></i> Yes, Continue
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="confirmNo">
+                                    <i class="fas fa-times me-1"></i> No, Try Again
+                                </button>
+                            </div>
+                        `;
+                        // Re-attach event listeners
+                        setupVerificationConfirmation(personName);
+                    });
+                    
+                    // Add event listener for save and continue
+                    document.getElementById('saveAndContinue').addEventListener('click', async function() {
+                        const email = document.getElementById('offenderEmail').value;
+                        const phone = document.getElementById('offenderPhone').value;
+                        const saveBtn = document.getElementById('saveAndContinue');
+                        const originalBtnText = saveBtn.innerHTML;
+                        
+                        // Skip validation for optional fields
+                        if (!email && !phone) {
+                            alert('Please provide at least one contact method (email or phone)');
+                            return;
+                        }
+                        
+                        // Format phone number (ensure it starts with 254)
+                        let formattedPhone = phone.replace(/^0/, '254');
+                        if (!formattedPhone.startsWith('254')) {
+                            formattedPhone = '254' + formattedPhone;
+                        }
+                        
+                        // Show loading state
+                        saveBtn.disabled = true;
+                        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                        
+                        try {
+                            // Extract first and last name from personName
+                            const nameParts = personName.trim().split(' ');
+                            const lastName = nameParts.pop() || '';
+                            const firstName = nameParts.join(' ') || '';
+                            
+                            // Only include fields that have values
+                            const clientData = {
+                                id_number: idNumber,
+                                first_name: firstName,
+                                last_name: lastName
+                            };
+                            
+                            if (email) clientData.email = email;
+                            if (phone) clientData.phone = formattedPhone;
+                            
+                            // Create/update client in database
+                            const response = await fetch('/api/core/clients/save-verified-client/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify(clientData)
+                            });
+                            
+                            const result = await response.json();
+                            
+                            if (!response.ok) {
+                                throw new Error(result.error || 'Failed to save client information');
+                            }
+                            
+                            // Get the incident ID from the URL
+                            const incidentId = window.location.pathname.split('/')[2];
+                            
+                            // Associate client with incident
+                            const incidentResponse = await fetch(`/api/core/incidents/${incidentId}/set-client/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                },
+                                body: JSON.stringify({
+                                    client_id: result.client_id
+                                })
+                            });
+                            
+                            if (!incidentResponse.ok) {
+                                const errorData = await incidentResponse.json();
+                                throw new Error(errorData.error || 'Failed to update incident');
+                            }
+                            
+                            // Redirect to incident detail page
+                            window.location.href = `/incidents/${incidentId}/`;
+                            
+                        } catch (error) {
+                            console.error('Error saving client:', error);
+                            alert(`Error: ${error.message}. Please try again.`);
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = originalBtnText;
+                        }
+                    });
+                });
+                
+                document.getElementById('confirmNo').addEventListener('click', function() {
+                    // Reset the form
+                    idNumberInput.value = '';
+                    resultEl.style.display = 'none';
+                    verifyBtn.disabled = false;
+                    continueBtn.disabled = true;
+                });
+            } else {
+                resultEl.className = 'verification-error mt-2 p-2';
+                resultEl.innerHTML = `
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Verification failed:</strong> ${data.message || 'Could not verify ID'}
+                `;
+            }
+        } catch (error) {
+            console.error('Error verifying KRA details:', error);
+            resultEl.className = 'verification-error mt-2 p-2';
+            resultEl.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Error:</strong> Could not complete verification. Please try again.
+            `;
+        } finally {
+            // Hide loading state
+            verifyBtn.disabled = false;
+            statusEl.classList.add('d-none');
+            resultEl.style.display = 'block';
+        }
+    }
+    
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Add click handler for verify button
+    document.getElementById('verifyIdBtn').addEventListener('click', function() {
+        const idNumber = idNumberInput.value.trim();
+        if (idNumber && idNumber.match(/^[0-9]{6,10}$/)) {
+            verifyKraDetails(idNumber);
+        } else {
+            const resultEl = document.getElementById('verificationResult');
+            resultEl.className = 'verification-error mt-2 p-2';
+            resultEl.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Invalid ID:</strong> Please enter a valid 8-9 digit Kenyan ID
+            `;
+            resultEl.style.display = 'block';
+        }
+    });
+    
+    // Only allow form submission if ID is verified for Kenyan citizens
+    form.addEventListener('submit', function(e) {
+        const selectedType = document.querySelector('input[name="offender_type"]:checked').value;
+        const incidentId = window.location.pathname.split('/')[2];
+        
+        if (selectedType === 'citizen') {
+            e.preventDefault();
+            const resultEl = document.getElementById('verificationResult');
+            
+            // Check if ID is verified
+            if (!resultEl.classList.contains('verification-success')) {
+                resultEl.className = 'verification-error mt-2 p-2';
+                resultEl.innerHTML = `
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Verification required:</strong> Please verify the ID before continuing
+                `;
+                resultEl.style.display = 'block';
+                return false;
+            }
+            
+            // If verified, proceed
+            window.location.href = `/incidents/${incidentId}/add-kenyan/`;
+        } else {
+            // For foreign nationals, just proceed
+            window.location.href = `/incidents/${incidentId}/add-foreigner/`;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -181,10 +181,151 @@ class SecurityIncidentListView(ListView):
         return context
 
 
+class AddOffenderView(LoginRequiredMixin, UpdateView):
+    model = SecurityIncident
+    template_name = 'home/add_offender.html'
+    fields = []  # We'll handle the form manually
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        incident = self.get_object()
+        context['incident'] = incident
+        
+        # Initialize form data with client info if it exists
+        if incident.client:
+            context['client'] = incident.client
+            # Get email and phone from contacts
+            email = incident.client.contacts.filter(contact_type='email').first()
+            phone = incident.client.contacts.filter(contact_type='phone').first()
+            address = incident.client.contacts.filter(contact_type='address').first()
+            
+            context['form_data'] = {
+                'first_name': incident.client.first_name or '',
+                'last_name': incident.client.last_name or '',
+                'surname': incident.client.surname or '',
+                'id_number': incident.client.id_number or '',
+                'email': email.contact if email else '',
+                'phone': phone.contact if phone else '',
+                'address': address.contact if address else ''
+            }
+        else:
+            context['form_data'] = {
+                'first_name': '',
+                'last_name': '',
+                'surname': '',
+                'id_number': '',
+                'email': '',
+                'phone': '',
+                'address': ''
+            }
+            
+        return context
+    
+    def form_valid(self, form):
+        incident = self.get_object()
+        
+        # Check permissions
+        if not (self.request.user.is_staff or self.request.user == incident.reported_by):
+            return HttpResponseForbidden("You don't have permission to add offenders to this incident.")
+        
+        try:
+            offender_type = self.request.POST.get('offender_type')
+            
+            if offender_type == 'citizen':
+                # Handle Kenyan citizen
+                first_name = self.request.POST.get('first_name', '').strip()
+                last_name = self.request.POST.get('last_name', '').strip()
+                id_number = self.request.POST.get('id_number', '').strip() or None
+                email = self.request.POST.get('email', '').strip()
+                phone = self.request.POST.get('phone', '').strip()
+            else:
+                # Handle foreign national
+                first_name = self.request.POST.get('foreigner_first_name', '').strip()
+                last_name = self.request.POST.get('foreigner_last_name', '').strip()
+                id_number = self.request.POST.get('foreigner_id', '').strip() or None
+                email = self.request.POST.get('foreigner_email', '').strip()
+                phone = self.request.POST.get('foreigner_phone', '').strip()
+                country_code = self.request.POST.get('country_code', '254')  # Default to Kenya
+                
+                # Format phone number with country code if not already included
+                if phone and not phone.startswith('+'):
+                    phone = f"+{country_code}{phone}"
+            
+            # Try to find existing client by ID number if provided
+            client = None
+            if id_number:
+                client = Client.objects.filter(id_number=id_number).first()
+            
+            # If client not found by ID, try to find by name and phone/email
+            if not client and first_name:
+                # Try to find by name and phone or email
+                client_query = Client.objects.filter(first_name__iexact=first_name)
+                if last_name:
+                    client_query = client_query.filter(last_name__iexact=last_name)
+                
+                # If we have contact info, try to match that as well
+                if phone or email:
+                    contact_query = Q()
+                    if phone:
+                        contact_query |= Q(contacts__contact_type='phone', contacts__contact__icontains=phone)
+                    if email:
+                        contact_query |= Q(contacts__contact_type='email', contacts__contact__iexact=email)
+                    
+                    client_query = client_query.filter(contact_query).distinct()
+                
+                client = client_query.first()
+            
+            # Create new client if not found
+            if not client:
+                client = Client.objects.create(
+                    first_name=first_name,
+                    last_name=last_name or None,  # Make last_name optional
+                    id_number=id_number
+                )
+                
+                # Add contact information if provided
+                if email:
+                    ClientContact.objects.create(
+                        client=client,
+                        contact_type='email',
+                        contact=email
+                    )
+                
+                if phone:
+                    ClientContact.objects.create(
+                        client=client,
+                        contact_type='phone',
+                        contact=phone
+                    )
+            
+            # Update incident with the client
+            incident.client = client
+            incident.save()
+            
+            # Create an update about this change
+            IncidentUpdate.objects.create(
+                incident=incident,
+                update_type='status_change',
+                description=f'Client/offender {client.get_full_name()} added to the incident.'
+            )
+            
+            messages.success(self.request, 'Client/offender added successfully.')
+            return redirect('home:incident_detail', pk=incident.pk)
+            
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())  # Log the full traceback for debugging
+            messages.error(self.request, f'Error adding client/offender: {str(e)}')
+            return self.form_invalid(form)
+    
+    def get_success_url(self):
+        return reverse('home:incident_detail', kwargs={'pk': self.object.pk})
+
+
 class SecurityIncidentDetailView(DetailView):
     """View details of a specific security incident"""
     model = SecurityIncident
-    template_name = 'home/incident_detail.html'
+    template_name = 'home/incident_detail_new.html'
     context_object_name = 'incident'
     
     def get_context_data(self, **kwargs):
@@ -207,6 +348,9 @@ class SecurityIncidentDetailView(DetailView):
         if 'update_form' in self.request.session:
             form_data = self.request.session.pop('update_form')
             context['update_form'] = IncidentUpdateForm(data=form_data)
+        
+        # Add evidence to context
+        context['evidence'] = self.object.evidence.all().order_by('-uploaded_at')
             
         return context
 
@@ -527,8 +671,8 @@ class IncidentCreateStep3View(LoginRequiredMixin, View):
             request.session.pop('incident_step1', None)
             request.session.pop('incident_step2', None)
             
-            messages.success(request, f'Security incident {incident.incident_id} created successfully. Please add the client details.')
-            return redirect('home:add_client_to_incident', incident_id=incident.pk)
+            messages.success(request, f'Security incident {incident.incident_id} created successfully. Please add the offender details.')
+            return redirect('home:add_offender', pk=incident.pk)
             
         return render(request, self.template_name, {
             'form': form, 
@@ -854,6 +998,48 @@ class AddEvidenceView(View):
         # Get existing evidence for this incident
         evidence_list = incident.evidence.all().order_by('-uploaded_at')
         
+        return render(request, self.template_name, {
+            'incident': incident,
+            'form': form,
+            'evidence_list': evidence_list
+        })
+        
+    def post(self, request, incident_id):
+        incident = get_object_or_404(SecurityIncident, pk=incident_id)
+        form = IncidentEvidenceForm(request.POST, request.FILES)
+        
+        if form.is_valid():
+            evidence = form.save(commit=False)
+            evidence.incident = incident
+            evidence.uploaded_by = request.user
+            
+            # Determine file type
+            file = request.FILES.get('file')
+            if file:
+                content_type = file.content_type
+                if content_type.startswith('image/'):
+                    evidence.file_type = 'image'
+                elif content_type.startswith('video/'):
+                    evidence.file_type = 'video'
+                elif content_type in ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+                    evidence.file_type = 'document'
+                else:
+                    evidence.file_type = 'other'
+            
+            evidence.save()
+            
+            # Create an update about this change
+            IncidentUpdate.objects.create(
+                incident=incident,
+                update_type='evidence_added',
+                description=f'New evidence added: {evidence.description or "No description"}'
+            )
+            
+            messages.success(request, 'Evidence added successfully.')
+            return redirect('home:add_evidence', incident_id=incident.id)
+            
+        # If form is not valid, show errors
+        evidence_list = incident.evidence.all().order_by('-uploaded_at')
         return render(request, self.template_name, {
             'incident': incident,
             'form': form,

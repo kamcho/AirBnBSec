@@ -52,7 +52,7 @@ class SecurityIncident(models.Model):
     reported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reported_incidents', help_text="User who reported the incident")
     
     # Guest/User involved
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, blank=True)
     
     # Timestamps
     incident_date = models.DateTimeField(help_text="Date and time when the incident occurred")

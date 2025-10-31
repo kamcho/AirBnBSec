@@ -54,6 +54,11 @@ def verify_kra(request):
                 print("[verify_kra] user resolved but logging failed", flush=True)
 
         # Check active subscription
+        print("[verify_kra] system checking subscription for user",
+              getattr(user, 'email', user.id),
+              "of phone number",
+              requester_phone,
+              flush=True)
         subscription = getattr(user, 'subscription', None)
         print("[verify_kra] subscription status:", {"has_sub": bool(subscription), "is_active": bool(subscription and subscription.is_active)}, flush=True)
         using_trial = False
@@ -100,8 +105,100 @@ def verify_kra(request):
     except json.JSONDecodeError:
         return JsonResponse({
             'success': False,
-            'message': 'Invalid JSON data'
+            'message': str(e)
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def verify_id_number(request, id_number):
+    """
+    API endpoint to verify a Kenyan National ID number
+    
+    Args:
+        id_number (str): The Kenyan National ID number to verify (8-9 digits)
+        
+    Returns:
+        JSON response with verification status and data
+        {
+            'success': bool,
+            'data': {
+                'name': str,  # Full name if verification successful
+                'id_number': str  # The verified ID number
+            },
+            'message': str  # Status message
+        }
+    """
+    from django.core.validators import RegexValidator
+    from django.core.exceptions import ValidationError
+    
+    # Validate ID number format (8-9 digits)
+    try:
+        validate_id = RegexValidator(
+            regex='^\d{7,9}$',
+            message='ID number must be 8-9 digits',
+            code='invalid_id_number'
+        )
+        validate_id(id_number)
+    except ValidationError as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
         }, status=400)
+    
+    try:
+        # Log the ID being verified
+        print(f"\n=== ID Verification Request ===")
+        print(f"ID Number: {id_number}")
+        print("Using ID number directly for verification")
+        print("==========================")
+        
+        # Use the ID number directly without adding A and Z
+        kra_pin = id_number
+        
+        # Get the KRA verification result
+        result = verify_kra_details(kra_pin)
+        
+        # Debug output
+        print("\n=== KRA Verification Result ===")
+        print(f"Success: {result.get('success')}")
+        print(f"Message: {result.get('message')}")
+        print(f"Data: {result.get('data', {})}")
+        print("============================")
+        
+        # Check if the KRA API returned an error
+        kra_data = result.get('data', {})
+        if not result.get('success') or 'ErrorCode' in kra_data or not kra_data.get('name'):
+            error_msg = kra_data.get('ErrorMessage') or result.get('message') or 'Failed to verify ID with KRA'
+            
+            # Provide more user-friendly error messages
+            if kra_data.get('ErrorCode') == '30002':
+                error_msg = 'The provided ID number could not be verified with KRA. This could be because:\n' \
+                          '1. The ID is not registered with KRA\n' \
+                          '2. The ID is invalid or in an incorrect format\n' \
+                          '3. There is an issue with the KRA verification service'
+            
+            print(f"KRA Verification Failed: {error_msg}")
+            return JsonResponse({
+                'success': False,
+                'message': error_msg,
+                'error_code': kra_data.get('ErrorCode')
+            }, status=400)
+            
+        # If we get here, verification was successful
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'name': kra_data.get('full_name', 'N/A'),
+                'id_number': id_number
+            },
+            'message': 'ID verified successfully'
+        })
+            
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error verifying ID: {str(e)}'
+        }, status=500)
     except Exception as e:
         return JsonResponse({
             'success': False,

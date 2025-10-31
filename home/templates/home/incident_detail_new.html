@@ -1,0 +1,666 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% load form_filters %}
+{% load humanize %}
+{% load security_filters %}
+
+{% block title %}Incident {{ incident.incident_id }} - AirBnBSec{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #3b82f6;
+        --primary-light: #60a5fa;
+        --secondary: #6b7280;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #1f2937;
+        --light: #f3f4f6;
+        --gray-100: #f9fafb;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --evidence-bg: #1e293b;
+        --evidence-border: #334155;
+        --evidence-hover: #2d3748;
+        --text-muted: #94a3b8;
+        --primary-color: #3b82f6;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+    }
+
+    body {
+        background-color: #0f172a;
+        color: #e2e8f0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.5;
+    }
+
+    .incident-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .incident-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .incident-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.5px;
+    }
+
+    .incident-subtitle {
+        color: #a5b4fc;
+        font-size: 1.1rem;
+        margin: 0.5rem 0 0;
+    }
+
+    /* Summary Card */
+    .summary-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .summary-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #334155;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-title i {
+        color: #818cf8;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn i {
+        font-size: 1em;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #4f46e5;
+        color: #818cf8;
+    }
+
+    .btn-outline:hover {
+        background: rgba(79, 70, 229, 0.1);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .summary-item {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .summary-label {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #e2e8f0;
+        margin: 0;
+    }
+
+    .severity-high { color: #f87171; }
+    .severity-medium { color: #fbbf24; }
+    .severity-low { color: #60a5fa; }
+    .status-open { color: #60a5fa; }
+    .status-investigating { color: #f59e0b; }
+    .status-resolved { color: #10b981; }
+    .status-closed { color: #94a3b8; }
+
+    /* Evidence Section */
+    .evidence-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .evidence-item {
+        background: var(--evidence-bg);
+        border: 1px solid var(--evidence-border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.2s ease;
+    }
+
+    .evidence-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .evidence-preview {
+        position: relative;
+        padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        background: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .evidence-image,
+    .evidence-video,
+    .evidence-file {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #0f172a;
+    }
+
+    .evidence-file {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 2rem;
+    }
+
+    .evidence-file i {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .evidence-file span {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .evidence-details {
+        padding: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .evidence-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .evidence-notes {
+        font-size: 0.875rem;
+        color: #e2e8f0;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        word-break: break-word;
+    }
+
+    .evidence-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+    }
+
+    .no-evidence {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-muted);
+    }
+
+    .no-evidence i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .no-evidence p {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Offender Section */
+.offender-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.offender-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.5rem;
+    border: 1px solid #334155;
+    transition: all 0.2s ease;
+}
+
+.offender-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #4f46e5;
+}
+
+.offender-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.offender-avatar i {
+    color: white;
+    font-size: 1.25rem;
+}
+
+.offender-details {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.offender-name {
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.offender-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+}
+
+.offender-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.offender-meta i {
+    width: 16px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.offender-notes {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.offender-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+.no-offenders {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #94a3b8;
+}
+
+.no-offenders i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-offenders p {
+    margin-bottom: 1.5rem;
+}
+
+/* Modal Styles */
+    .modal-content {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        background: #1e293b;
+    }
+    
+    .modal-header {
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-title {
+        font-weight: 600;
+        color: #e2e8f0;
+        font-size: 1.25rem;
+        letter-spacing: 0.3px;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+        color: #e2e8f0;
+    }
+    
+    .modal-footer {
+        background: #1e293b;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .incident-title {
+            font-size: 1.75rem;
+        }
+        
+        .incident-subtitle {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="incident-container">
+    <!-- Incident Header -->
+    <header class="incident-header">
+        <h1 class="incident-title">Incident #{{ incident.incident_id }}</h1>
+        <p class="incident-subtitle">{{ incident.title }}</p>
+        
+    </header>
+    
+    <!-- Incident Description Card -->
+    {% if incident.description %}
+    <section class="summary-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-align-left"></i>
+                Description
+            </h2>
+        </div>
+        <div class="description-content" style="line-height: 1.6; color: #e2e8f0;">
+            {{ incident.description|linebreaksbr }}
+        </div>
+    </section>
+    {% endif %}
+    
+    <!-- Summary Card -->
+    <section class="summary-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-info-circle"></i>
+                Incident Summary
+            </h2>
+            <div class="card-actions">
+                <button class="btn btn-outline">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </div>
+        </div>
+        
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Status</div>
+                <div class="summary-value status-{{ incident.status|lower }}">
+                    <i class="fas fa-{{ incident.status_icon }}"></i>
+                    {{ incident.get_status_display }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Severity</div>
+                <div class="summary-value severity-{{ incident.severity|lower }}">
+                    <i class="fas fa-{{ incident.severity_icon }}"></i>
+                    {{ incident.get_severity_display }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Reported</div>
+                <div class="summary-value">
+                    <i class="far fa-calendar"></i>
+                    {{ incident.reported_date|date:"M d, Y H:i" }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Last Updated</div>
+                <div class="summary-value">
+                    <i class="far fa-clock"></i>
+                    {{ incident.updated_at|timesince }} ago
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Reporter</div>
+                <div class="summary-value">
+                    <i class="fas fa-user"></i>
+                    {{ incident.reported_by.get_full_name|default:incident.reported_by.username }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Assigned To</div>
+                <div class="summary-value">
+                    {% if incident.assigned_to %}
+                        <i class="fas fa-user-shield"></i>
+                        {{ incident.assigned_to.get_full_name|default:incident.assigned_to.username }}
+                    {% else %}
+                        <span class="text-muted">Unassigned</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if incident.description %}
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #334155;">
+            <div class="summary-label" style="margin-bottom: 0.5rem;">Description</div>
+            <p style="color: #e2e8f0; margin: 0;">{{ incident.description|linebreaksbr }}</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Evidence Section -->
+    <section class="summary-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-camera"></i>
+                Evidence
+            </h2>
+            <div class="card-actions">
+                <a href="{% url 'home:add_evidence' incident_id=incident.id %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Evidence
+                </a>
+            </div>
+        </div>
+        
+        <div class="evidence-grid">
+            {% if incident.evidence.all %}
+                {% for evidence in incident.evidence.all %}
+                <div class="evidence-item" data-bs-toggle="modal" data-bs-target="#evidenceModal" 
+                     data-title="Evidence from {{ evidence.uploaded_by.get_full_name|default:evidence.uploaded_by.username }}"
+                     data-file="{{ evidence.file.url }}"
+                     data-type="{% if evidence.file.name|lower|slice:'-4:' == '.jpg' or evidence.file.name|lower|slice:'-5:' == '.jpeg' or evidence.file.name|lower|slice:'-4:' == '.png' %}image{% elif evidence.file.name|lower|slice:'-4:' == '.mp4' or evidence.file.name|lower|slice:'-4:' == '.mov' %}video{% elif evidence.file.name|lower|slice:'-4:' == '.pdf' %}pdf{% else %}file{% endif %}">
+                    <div class="evidence-preview">
+                        {% if evidence.file.name|lower|slice:'-4:' == '.jpg' or evidence.file.name|lower|slice:'-5:' == '.jpeg' or evidence.file.name|lower|slice:'-4:' == '.png' %}
+                            <img src="{{ evidence.file.url }}" alt="Evidence image" class="evidence-image">
+                        {% elif evidence.file.name|lower|slice:'-4:' == '.mp4' or evidence.file.name|lower|slice:'-4:' == '.mov' %}
+                            <video class="evidence-video">
+                                <source src="{{ evidence.file.url }}" type="video/mp4">
+                            </video>
+                            <div class="video-overlay">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        {% elif evidence.file.name|lower|slice:'-4:' == '.pdf' %}
+                            <div class="evidence-file">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>PDF Document</span>
+                            </div>
+                        {% else %}
+                            <div class="evidence-file">
+                                <i class="fas fa-file"></i>
+                                <span>{{ evidence.file.name|slice:"-10:" }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="evidence-details">
+                        <div class="evidence-meta">
+                            <span class="evidence-date">{{ evidence.uploaded_at|date:"M d, Y H:i" }}</span>
+                            <span class="evidence-uploader">by {{ evidence.uploaded_by.get_full_name|default:evidence.uploaded_by.username }}</span>
+                        </div>
+                        <div class="evidence-notes">{{ evidence.notes|truncatechars:100 }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-evidence">
+                    <i class="fas fa-inbox"></i>
+                    <p>No evidence has been uploaded for this incident yet.</p>
+                    <a href="{% url 'home:add_evidence' incident_id=incident.id %}" class="btn btn-primary mt-2">
+                        <i class="fas fa-plus"></i> Add Your First Evidence
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Client/Offender Section -->
+    <section class="summary-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-user-shield"></i>
+                Client/Offender Information
+            </h2>
+            <div class="card-actions">{% if not incident.client %}
+                <a href="{% url 'home:add_offender' pk=incident.id %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Client/Offender
+                </a>{% endif %}
+            </div>
+        </div>
+        
+        <div class="offender-list">
+            {% if incident.client %}
+                <div class="offender-item">
+                    <div class="offender-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="offender-details">
+                        <div class="offender-name">
+                            {{ incident.client.first_name }} {{ incident.client.last_name }}
+                            {% if incident.client.surname %}({{ incident.client.surname }}){% endif %}
+                        </div>
+                        <div class="offender-meta">
+                            {% if incident.client.contacts.exists %}
+                                {% for contact in incident.client.contacts.all|slice:":2" %}
+                                    <span><i class="fas fa-{{ contact.contact_type }}"></i> {{ contact.contact }}</span>
+                                {% endfor %}
+                            {% endif %}
+                            {% if incident.client.id_number %}
+                                <span><i class="fas fa-id-card"></i> {{ incident.client.id_number }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="no-offenders">
+                    <i class="fas fa-user-slash"></i>
+                    <p>No client/offender has been associated with this incident yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// JavaScript code will go here
+</script>
+{% endblock %}

@@ -121,3 +121,32 @@ class CombinedUserProfileForm(forms.ModelForm):
             
         return profile
 
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone') or ''
+        normalized = self._normalize_phone(phone)
+        if not normalized:
+            return phone
+        # Enforce uniqueness against other users' profiles
+        qs = PersonalProfile.objects.filter(phone=normalized)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('This phone number is already in use.')
+        return normalized
+
+    @staticmethod
+    def _normalize_phone(value: str) -> str:
+        v = (value or '').strip()
+        if not v:
+            return ''
+        # Remove spaces and dashes
+        for ch in [' ', '-', '(', ')']:
+            v = v.replace(ch, '')
+        # Remove leading '+' for storage
+        v_no_plus = v[1:] if v.startswith('+') else v
+        # If starts with 07..., convert to 2547...
+        if v_no_plus.startswith('07'):
+            return '254' + v_no_plus[1:]
+        # If already 2547..., keep as is
+        return v_no_plus
+

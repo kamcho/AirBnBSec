@@ -8,12 +8,189 @@
 
 {% block extra_css %}
 <style>
-    /* Video Upload Modal Styles */
+    :root {
+        --primary: #3b82f6;
+        --primary-light: #60a5fa;
+        --secondary: #6b7280;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --dark: #1f2937;
+        --light: #f3f4f6;
+        --gray-100: #f9fafb;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+    }
+
+    body {
+        background-color: #0f172a;
+        color: #e2e8f0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.5;
+    }
+
+    .incident-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .incident-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .incident-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.5px;
+    }
+
+    .incident-subtitle {
+        color: #a5b4fc;
+        font-size: 1.1rem;
+        margin: 0.5rem 0 0;
+    }
+
+    /* Summary Card */
+    .summary-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .summary-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #334155;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-title i {
+        color: #818cf8;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn i {
+        font-size: 1em;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #4f46e5;
+        color: #818cf8;
+    }
+
+    .btn-outline:hover {
+        background: rgba(79, 70, 229, 0.1);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .summary-item {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .summary-label {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #e2e8f0;
+        margin: 0;
+    }
+
+    .severity-high { color: #f87171; }
+    .severity-medium { color: #fbbf24; }
+    .severity-low { color: #60a5fa; }
+    .status-open { color: #60a5fa; }
+    .status-investigating { color: #f59e0b; }
+    .status-resolved { color: #10b981; }
+    .status-closed { color: #94a3b8; }
+
+    @media (max-width: 768px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .incident-title {
+            font-size: 1.75rem;
+        }
+        
+        .incident-subtitle {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Modal Styles */
     .modal-content {
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         overflow: hidden;
+        background: #1e293b;
     }
     
     .modal-header {
@@ -32,7 +209,103 @@
     }
     
     .modal-body {
+        padding: 1.5rem;
+        color: #e2e8f0;
+    }
+    
+    .modal-footer {
         background: #1e293b;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="incident-container">
+    <!-- Incident Header -->
+    <header class="incident-header">
+        <h1 class="incident-title">Incident #{{ incident.incident_id }}</h1>
+        <p class="incident-subtitle">{{ incident.title }}</p>
+    </header>
+
+    <!-- Summary Card -->
+    <section class="summary-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-info-circle"></i>
+                Incident Summary
+            </h2>
+            <div class="card-actions">
+                <button class="btn btn-outline">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </div>
+        </div>
+        
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Status</div>
+                <div class="summary-value status-{{ incident.status|lower }}">
+                    <i class="fas fa-{{ incident.status_icon }}"></i>
+                    {{ incident.get_status_display }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Severity</div>
+                <div class="summary-value severity-{{ incident.severity|lower }}">
+                    <i class="fas fa-{{ incident.severity_icon }}"></i>
+                    {{ incident.get_severity_display }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Reported</div>
+                <div class="summary-value">
+                    <i class="far fa-calendar"></i>
+                    {{ incident.reported_date|date:"M d, Y H:i" }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Last Updated</div>
+                <div class="summary-value">
+                    <i class="far fa-clock"></i>
+                    {{ incident.updated_at|timesince }} ago
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Reporter</div>
+                <div class="summary-value">
+                    <i class="fas fa-user"></i>
+                    {{ incident.reported_by.get_full_name|default:incident.reported_by.username }}
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-label">Assigned To</div>
+                <div class="summary-value">
+                    {% if incident.assigned_to %}
+                        <i class="fas fa-user-shield"></i>
+                        {{ incident.assigned_to.get_full_name|default:incident.assigned_to.username }}
+                    {% else %}
+                        <span class="text-muted">Unassigned</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if incident.description %}
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #334155;">
+            <div class="summary-label" style="margin-bottom: 0.5rem;">Description</div>
+            <p style="color: #e2e8f0; margin: 0;">{{ incident.description|linebreaksbr }}</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
         padding: 2rem;
     }
     

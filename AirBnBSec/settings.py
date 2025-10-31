@@ -75,6 +75,7 @@ MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', 'YOUR_PASSKEY')
 # Callback URL - Update this with your actual callback URL
 MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://yourdomain.com/api/payments/mpesa-callback/')
 
+
 # Transaction Type (CustomerPayBillOnline or CustomerBuyGoodsOnline)
 MPESA_TRANSACTION_TYPE = 'CustomerPayBillOnline'
 
@@ -102,13 +103,14 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 CSRF_TRUSTED_ORIGINS = [
     'https://www.tourske.com',
     'https://tourske.com',
+    'https://arhythmically-unciliated-danna.ngrok-free.dev'
 ]
 
 # Security settings - different in development vs production
     # HTTPS settings
     
 
-ALLOWED_HOSTS = ['www.tourske.com','127.0.0.1','localhost','tourske.com','13.60.251.46']
+ALLOWED_HOSTS = ['127.0.0.1','arhythmically-unciliated-danna.ngrok-free.dev']
 
 SECURE_SSL_REDIRECT = False
 

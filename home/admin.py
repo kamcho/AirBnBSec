@@ -5,7 +5,7 @@ from .models import SecurityIncident, IncidentUpdate, IncidentEvidence
 class SecurityIncidentAdmin(admin.ModelAdmin):
     list_display = ['incident_id', 'title', 'incident_type', 'severity', 'status', 'reported_by', 'incident_date', 'reported_date']
     list_filter = ['incident_type', 'severity', 'status', 'reported_date']
-    search_fields = ['incident_id', 'title', 'description', 'guest_name', 'guest_email']
+    search_fields = ['incident_id', 'title', 'description', 'client__first_name', 'client__last_name', 'client__email']
     readonly_fields = ['incident_id', 'reported_date', 'created_at', 'updated_at']
     ordering = ['-reported_date']
     
@@ -14,7 +14,7 @@ class SecurityIncidentAdmin(admin.ModelAdmin):
             'fields': ('incident_id', 'title', 'description', 'incident_type', 'severity', 'status')
         }),
         ('People Involved', {
-            'fields': ('reported_by', 'guest_name', 'guest_email', 'guest_phone')
+            'fields': ('reported_by', 'client')
         }),
         ('Timeline', {
             'fields': ('incident_date', 'reported_date', 'resolved_date')
