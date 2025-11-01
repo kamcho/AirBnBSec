@@ -368,8 +368,14 @@ def whatsapp_webhook(request):
                                                             {"exists": True, "count": getattr(trial, 'count', None), "expiry": getattr(trial, 'expiry', None)},
                                                             flush=True
                                                         )
-                                                        # Block if expired or no count
-                                                        if (trial.expiry and timezone.now() > trial.expiry) or (trial.count or 0) <= 0:
+                                                        # Check trial status
+                                                        trial_expired = trial.expiry and timezone.now() > trial.expiry
+                                                        trial_exhausted = (trial.count or 0) <= 0
+                                                        
+                                                        print(f"[whatsapp_webhook] Trial check - Expired: {trial_expired}, Count: {trial.count}, Exhausted: {trial_exhausted}", flush=True)
+                                                        
+                                                        # Only block if both expired AND no count left
+                                                        if trial_expired and trial_exhausted:
                                                             base_url = getattr(settings, 'SITE_URL', '').rstrip('/')
                                                             payment_url = getattr(settings, 'PAYMENT_URL', '').strip()
                                                             if not payment_url:
@@ -434,7 +440,7 @@ def whatsapp_webhook(request):
                                                         verification_request.related_incidents.set(incidents)
                                                         
                                                         incidents_list = []
-                                                        base_url = getattr(settings, 'SITE_URL', 'https://arhythmically-unciliated-danna.ngrok-free.dev')
+                                                        base_url = getattr(settings, 'SITE_URL', 'https://tourske.com')
                                                         
                                                         for incident in incidents:
                                                             incident_url = f"{base_url}{reverse('home:incident_detail', args=[incident.id])}"
@@ -468,7 +474,7 @@ def whatsapp_webhook(request):
                                                     "_If this does not match the person you're verifying, please report this incident immediately._\n\n"
                                                     "⚠️ *Suspicious Activity?*\n"
                                                     "If the verification details don't match the person's identification or if you suspect fraudulent activity, please report this incident at:\n"
-                                                    "https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n\n"
+                                                    "https://tourske.com/incidents/create/step1/\n\n"
                                                     "Your vigilance helps keep our community safe! 🛡️"
                                                 )
                                                 # Decrement trial on success
@@ -508,10 +514,28 @@ def whatsapp_webhook(request):
                                                     "2. If the ID is correct but verification fails, the person may be using invalid credentials\n\n"
                                                     "*For your safety, we recommend:*\n"
                                                     "• Do not proceed with any transactions\n"
-                                                    "• Report this incident at: https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n"
+                                                    "• Report this incident at: https://tourske.com/incidents/create/step1/\n"
                                                     "• Contact support if you need assistance"
                                                 )
                                                 print(f"❌ Verification failed: {error_msg}")
+                                                if not resolved_user:
+                                                    # User not found, respond with registration message
+                                                    registration_url = getattr(settings, 'SITE_URL', 'https://tourske.com').rstrip('/') + '/register/'
+                                                    response_message = (
+                                                        "🔒 *Account Required*\n\n"
+                                                        "You need to register an account to use our verification service.\n\n"
+                                                        "📱 *How to get started:*\n"
+                                                        "1. Visit our website: https://tourske.com\n"
+                                                        "2. Create your free account\n"
+                                                        "3. Start verifying IDs instantly!\n\n"
+                                                        "💡 *Why register?*\n"
+                                                        "• Verify up to 3 IDs for free\n"
+                                                        "• Track your verification history\n"
+                                                        "• Get instant results\n\n"
+                                                        f"👉 Register here: {registration_url}"
+                                                    )
+                                                    send_message(sender_phone, response_message)
+                                                    return JsonResponse({'status': 'ok'})
                                         else:
                                             # Create a failed verification request for tracking
                                             VerificationRequest.objects.create(
@@ -531,7 +555,7 @@ def whatsapp_webhook(request):
                                         response_message = (
                                             "📝 *Report an Incident* 📝\n\n"
                                             "To report a security incident, please visit our reporting portal and follow these steps:\n\n"
-                                            "1. *Access the Form*: Go to https://arhythmically-unciliated-danna.ngrok-free.dev/incidents/create/step1/\n"
+                                            "1. *Access the Form*: Go to https://tourske.com/incidents/create/step1/\n"
                                             "2. *Provide Details*: Fill in all required information about the incident\n"
                                             "3. *Upload Evidence*: Attach any relevant photos, documents, or screenshots\n"
                                             "4. *Submit Report*: Review and submit your report\n\n"

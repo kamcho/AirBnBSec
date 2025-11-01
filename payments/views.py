@@ -42,7 +42,7 @@ def initiate_payment(request):
             print(f"Request data: {data}")
                 
             phone_number = data.get('phone_number')
-            amount = 1  # Fixed amount of 1 KSH for testing
+            amount = 100  # Fixed amount of 100 KSH
             account_reference = data.get('account_reference', f'AIRBNBSEC{request.user.id}')
             description = data.get('description', 'AirBnBSec Service Fee')
             
