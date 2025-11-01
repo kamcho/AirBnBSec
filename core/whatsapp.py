@@ -159,19 +159,36 @@ Return ONLY the intent ID, nothing else."""
 
 def send_message(to_phone, message):
     """Send WhatsApp message"""
-    # Load env
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
-    if os.path.exists(env_path):
-        load_dotenv(dotenv_path=env_path, override=True)
+    print("\n" + "="*50)
+    print("🔍 DEBUG: Starting send_message function")
+    print(f"📞 To: {to_phone}")
+    print(f"📝 Message length: {len(message)} chars")
     
+    # Load env
+    print("\n🔄 Loading environment variables...")
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+    print(f"📁 .env path: {env_path}")
+    
+    if os.path.exists(env_path):
+        print("✅ .env file found")
+        load_dotenv(dotenv_path=env_path, override=True)
+    else:
+        print("❌ .env file NOT found!")
+    
+    # Get credentials
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID', '104040046094231')
     
-    if not access_token:
-        print("❌ No access token")
-        return {'success': False}
+    print(f"\n🔑 Access Token: {'****' + access_token[-4:] if access_token else '❌ NOT FOUND'}")
+    print(f"📱 Phone Number ID: {phone_number_id}")
     
+    if not access_token:
+        print("❌ ERROR: No access token found in environment")
+        return {'success': False, 'error': 'No access token'}
+    
+    # Prepare request
     url = f"https://graph.facebook.com/v22.0/{phone_number_id}/messages"
+    print(f"\n🌐 API Endpoint: {url}")
     
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -188,20 +205,49 @@ def send_message(to_phone, message):
         }
     }
     
-    print(f"📤 Sending to {to_phone}: {message}")
+    print("\n📤 Sending message...")
+    print(f"📞 To: {to_phone}")
+    print(f"📝 Message (first 100 chars): {message[:100]}...")
     
     try:
-        response = requests.post(url, headers=headers, json=payload)
-        print(f"📥 Status: {response.status_code}")
-        print(f"📥 Response: {response.text}")
+        print("\n🔄 Making API request...")
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        
+        print(f"\n📥 Response received")
+        print(f"🔢 Status Code: {response.status_code}")
+        print(f"📄 Response Headers: {dict(response.headers)}")
+        print(f"📦 Response Body: {response.text}")
         
         if response.status_code == 200:
+            print("✅ Message sent successfully!")
             return {'success': True}
         else:
-            return {'success': False, 'error': response.text}
-    except Exception as e:
-        print(f"❌ Error: {e}")
+            print(f"❌ API Error: {response.status_code} - {response.text}")
+            return {
+                'success': False, 
+                'status_code': response.status_code,
+                'error': response.text
+            }
+            
+    except requests.exceptions.RequestException as e:
+        print(f"\n❌ Request Exception:")
+        print(f"Type: {type(e).__name__}")
+        print(f"Error: {str(e)}")
+        if hasattr(e, 'response') and e.response is not None:
+            print(f"Response Status: {e.response.status_code}")
+            print(f"Response Text: {e.response.text}")
         return {'success': False, 'error': str(e)}
+        
+    except Exception as e:
+        print(f"\n❌ Unexpected Error:")
+        print(f"Type: {type(e).__name__}")
+        print(f"Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': str(e)}
+    
+    finally:
+        print("\n" + "="*50 + "\n")
 
 
 @csrf_exempt
@@ -437,7 +483,11 @@ def whatsapp_webhook(request):
                                                         trial.save(update_fields=['count'])
                                                         print("[whatsapp_webhook] trial decremented:", {"before": before, "after": trial.count}, flush=True)
                                                         response_message += f"\n\n🆓 Free trial remaining: {trial.count}"
+                                                
+                                                # Send the response message
                                                 print(f"✅ Verified: {verified_name}")
+                                                send_message(sender_phone, response_message)
+                                                print(f"📨 Sent verification response to {sender_phone}")
                                             else:
                                                 # Update verification request with failure data
                                                 error_msg = verification_result.get('message', 'Verification failed')
