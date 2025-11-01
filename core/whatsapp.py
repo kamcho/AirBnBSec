@@ -566,38 +566,20 @@ def whatsapp_webhook(request):
                                             response_message = "⚠️ Please provide an ID number to verify.\n\nExample: 'verify A123456789X'"
                                             print("⚠️ No ID number found")
                                     
-                                    elif intent_id == 'help':
-                                        response_message = (
-                                            "🆘 *Need Help?*\n\n"
-                                            "For any assistance or inquiries, please contact our admin at:\n"
-                                            "📞 +254742134431\n\n"
-                                            "We're here to help you with any questions about our verification service."
-                                        )
-                                    
                                     elif intent_id == 'report':
                                         response_message = (
                                             "📝 *Report an Incident* 📝\n\n"
-                                            "Please report security incidents through our online portal:\n\n"
-                                            f"🔗 {getattr(settings, 'SITE_URL', 'https://tourske.com').rstrip('/')}/incidents/create/step1/\n\n"
-                                            "Your reports help us maintain a safer community for everyone."
-                                        )
-                                    
-                                    # Handle greetings
-                                    elif any(word in message_text.lower() for word in ['hi', 'hello', 'hey', 'greetings']):
-                                        response_message = (
-                                            "👋 *Hello!*\n\n"
-                                            "Welcome to our verification service! I can help you with:\n\n"
-                                            "• Verifying client IDs (e.g., 'verify A123456789X')\n"
-                                            "• Reporting security incidents\n\n"
-                                            "How can I assist you today?"
-                                        )
-                                    elif intent_id == 'unknown':
-                                        response_message = (
-                                            "⚠️ *I can't help with that request right now.*\n\n"
-                                            "I'm an AI agent designed to help you verify clients/offenders.\n\n"
-                                            "Here's what I can help you with:\n"
-                                            "• Verify a client's ID (e.g., 'verify A123456789X')\n"
-                                            "• Report a security incident\n"
+                                            "To report a security incident, please visit our reporting portal and follow these steps:\n\n"
+                                            "1. *Access the Form*: Go to https://tourske.com/incidents/create/step1/\n"
+                                            "2. *Provide Details*: Fill in all required information about the incident\n"
+                                            "3. *Upload Evidence*: Attach any relevant photos, documents, or screenshots\n"
+                                            "4. *Submit Report*: Review and submit your report\n\n"
+                                            "ℹ️ *What to include in your report:*\n"
+                                            "• Date and time of the incident\n"
+                                            "• Location or property address\n"
+                                            "• Description of what happened\n"
+                                            "• Any involved parties' information\n\n"
+                                            "Your report helps us maintain a safe community. Thank you for your cooperation!"
                                         )
                                     else:
                                         # Default response for other intents
