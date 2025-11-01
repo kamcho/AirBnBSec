@@ -533,25 +533,24 @@ def whatsapp_webhook(request):
                                                     f"*Reason:* {error_msg}\n\n"
                                                     "⚠️ *Next Steps:*\n"
                                                     "1. Double-check the ID number for any typos\n"
-                                                    "2. If the ID is correct but verification fails, the person may be using invalid credentials\n\n"
+                                                    "2. If the ID is correct but verification fails, the person may not be registered by KRA\n\n"
                                                     "*For your safety, we recommend:*\n"
-                                                    "• Do not proceed with any transactions\n"
-                                                    "• Report this incident at: https://tourske.com/incidents/create/step1/\n"
+                                                    "• Verify the physical ID\n"
                                                     "• Contact support if you need assistance"
                                                 )
                                                 print(f"❌ Verification failed: {error_msg}")
-                                                response_message = (
-                                                    "❌ *Verification Failed*\n\n"
-                                                    f"We couldn't verify the provided ID: {id_number}\n\n"
-                                                    f"*Reason:* {error_msg}\n\n"
-                                                    "⚠️ *Next Steps:*\n"
-                                                    "1. Double-check the ID number for any typos\n"
-                                                    "2. If the ID is correct but verification fails, the person may be using invalid credentials\n\n"
-                                                    "*For your safety, we recommend:*\n"
-                                                    "• Do not proceed with any transactions\n"
-                                                    "• Report this incident at: https://tourske.com/incidents/create/step1/\n"
-                                                    "• Contact support if you need assistance"
-                                                )
+                                                # response_message = (
+                                                #     "❌ *Verification Failed*\n\n"
+                                                #     f"We couldn't verify the provided ID: {id_number}\n\n"
+                                                #     f"*Reason:* {error_msg}\n\n"
+                                                #     "⚠️ *Next Steps:*\n"
+                                                #     "1. Double-check the ID number for any typos\n"
+                                                #     "2. If the ID is correct but verification fails, the person may be using invalid credentials\n\n"
+                                                #     "*For your safety, we recommend:*\n"
+                                                #     "• Do not proceed with any transactions\n"
+                                                #     "• Report this incident at: https://tourske.com/incidents/create/step1/\n"
+                                                #     "• Contact support if you need assistance"
+                                                # )
                                         else:
                                             # Create a failed verification request for tracking
                                             VerificationRequest.objects.create(
