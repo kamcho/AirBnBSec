@@ -335,70 +335,92 @@ def whatsapp_webhook(request):
                                         if id_number:
                                             print(f"📋 Verifying ID: {id_number}")
 
-                                            # Resolve user by phone and enforce subscription/free trial
-                                            using_trial = False
+                                            # First check if user is registered
                                             resolved_user = None
+                                            variants = _phone_variants(sender_phone)
+                                            profile = PersonalProfile.objects.filter(phone__in=variants).select_related('user').first()
+                                            
+                                            if not (profile and profile.user):
+                                                # Unregistered user - send registration message
+                                                registration_url = getattr(settings, 'SITE_URL', 'https://tourske.com').rstrip('/') + '/register/'
+                                                response_message = (
+                                                    "🔒 *Account Required*\n\n"
+                                                    "You need to register an account to use our verification service.\n\n"
+                                                    "📱 *How to get started:*\n"
+                                                    "1. Visit our website: https://tourske.com\n"
+                                                    "2. Create your free account\n"
+                                                    "3. Start verifying IDs instantly!\n\n"
+                                                    "💡 *Why register?*\n"
+                                                    "• Verify clients securely\n"
+                                                    "• Get free trial for testing\n"
+                                                    "• Track your verification history\n"
+                                                    "• Get instant results\n\n"
+                                                    f"👉 Register here: {registration_url}"
+                                                )
+                                                send_message(sender_phone, response_message)
+                                                return JsonResponse({'status': 'ok'})
+                                            
                                             try:
-                                                variants = _phone_variants(sender_phone)
-                                                profile = PersonalProfile.objects.filter(phone__in=variants).select_related('user').first()
-                                                if profile and profile.user:
-                                                    resolved_user = profile.user
+                                                # If we get here, user is registered
+                                                resolved_user = profile.user
+                                                using_trial = False
+                                                
+                                                print(
+                                                    "[whatsapp_webhook] system checking subscription for user",
+                                                    getattr(resolved_user, 'email', resolved_user.id),
+                                                    "of phone number",
+                                                    sender_phone,
+                                                    flush=True
+                                                )
+                                                subscription = getattr(resolved_user, 'subscription', None)
+                                                print(
+                                                    "[whatsapp_webhook] subscription status:",
+                                                    {"has_sub": bool(subscription), "is_active": bool(subscription and subscription.is_active)},
+                                                    flush=True
+                                                )
+                                                
+                                                if not (subscription and subscription.is_active):
+                                                    trial, created = FreeTrial.objects.get_or_create(user=resolved_user)
+                                                    if created:
+                                                        trial.count = 3
+                                                        trial.expiry = timezone.now() + timezone.timedelta(days=7)
+                                                        trial.save(update_fields=['count', 'expiry'])
+                                                        print("[whatsapp_webhook] trial initialized:", {"count": trial.count, "expiry": trial.expiry}, flush=True)
                                                     print(
-                                                        "[whatsapp_webhook] system checking subscription for user",
-                                                        getattr(resolved_user, 'email', resolved_user.id),
-                                                        "of phone number",
-                                                        sender_phone,
+                                                        "[whatsapp_webhook] freetrial status:",
+                                                        {"exists": True, "count": getattr(trial, 'count', None), "expiry": getattr(trial, 'expiry', None)},
                                                         flush=True
                                                     )
-                                                    subscription = getattr(resolved_user, 'subscription', None)
-                                                    print(
-                                                        "[whatsapp_webhook] subscription status:",
-                                                        {"has_sub": bool(subscription), "is_active": bool(subscription and subscription.is_active)},
-                                                        flush=True
-                                                    )
-                                                    if not (subscription and subscription.is_active):
-                                                        trial, created = FreeTrial.objects.get_or_create(user=resolved_user)
-                                                        if created:
-                                                            trial.count = 3
-                                                            trial.expiry = timezone.now() + timezone.timedelta(days=7)
-                                                            trial.save(update_fields=['count', 'expiry'])
-                                                            print("[whatsapp_webhook] trial initialized:", {"count": trial.count, "expiry": trial.expiry}, flush=True)
-                                                        print(
-                                                            "[whatsapp_webhook] freetrial status:",
-                                                            {"exists": True, "count": getattr(trial, 'count', None), "expiry": getattr(trial, 'expiry', None)},
-                                                            flush=True
+                                                    
+                                                    # Check trial status
+                                                    trial_expired = trial.expiry and timezone.now() > trial.expiry
+                                                    trial_exhausted = (trial.count or 0) <= 0
+                                                    
+                                                    print(f"[whatsapp_webhook] Trial check - Expired: {trial_expired}, Count: {trial.count}, Exhausted: {trial_exhausted}", flush=True)
+                                                    
+                                                    # Only block if both expired AND no count left
+                                                    if trial_expired and trial_exhausted:
+                                                        base_url = getattr(settings, 'SITE_URL', '').rstrip('/')
+                                                        payment_url = getattr(settings, 'PAYMENT_URL', '').strip()
+                                                        if not payment_url:
+                                                            try:
+                                                                pay_path = reverse('payments:pay')  # use named URL if defined
+                                                            except Exception:
+                                                                pay_path = '/api/payments/pay/'
+                                                            payment_url = f"https://tourske.com/api/payments/pay/"
+                                                        msg = (
+                                                            "🚫 Your free trial has ended.\n\n"
+                                                            "You've reached the limit of complimentary verifications. To keep protecting your property and guests, upgrade now to unlock unlimited checks and instant alerts.\n\n"
+                                                            "✅ Fast, reliable verifications\n"
+                                                            "🛡️ Reduce fraud and risky bookings\n"
+                                                            "📊 Access incident insights\n\n"
+                                                            f"👉 Subscribe here: {payment_url}\n\n"
+                                                            "For ksh 100 only per month"
                                                         )
-                                                        # Check trial status
-                                                        trial_expired = trial.expiry and timezone.now() > trial.expiry
-                                                        trial_exhausted = (trial.count or 0) <= 0
-                                                        
-                                                        print(f"[whatsapp_webhook] Trial check - Expired: {trial_expired}, Count: {trial.count}, Exhausted: {trial_exhausted}", flush=True)
-                                                        
-                                                        # Only block if both expired AND no count left
-                                                        if trial_expired and trial_exhausted:
-                                                            base_url = getattr(settings, 'SITE_URL', '').rstrip('/')
-                                                            payment_url = getattr(settings, 'PAYMENT_URL', '').strip()
-                                                            if not payment_url:
-                                                                try:
-                                                                    pay_path = reverse('payments:pay')  # use named URL if defined
-                                                                except Exception:
-                                                                    pay_path = '/api/payments/pay/'
-                                                                payment_url = f"https://tourske.com/api/payments/pay/"
-                                                            msg = (
-                                                                "🚫 Your free trial has ended.\n\n"
-                                                                "You’ve reached the limit of complimentary verifications. To keep protecting your property and guests, upgrade now to unlock unlimited checks and instant alerts.\n\n"
-                                                                "✅ Fast, reliable verifications\n"
-                                                                "🛡️ Reduce fraud and risky bookings\n"
-                                                                "📊 Access incident insights\n\n"
-                                                                f"👉 Subscribe here: {payment_url}\n\n"
-                                                                "For ksh 100 only per month"
-                                                            )
-                                                            print("[whatsapp_webhook] trial blocked send message", flush=True)
-                                                            _ = send_message(sender_phone, msg)
-                                                            return JsonResponse({'status': 'ok'})
-                                                        using_trial = True
-                                                else:
-                                                    print("[whatsapp_webhook] no profile/user resolved for phone", sender_phone, flush=True)
+                                                        print("[whatsapp_webhook] trial blocked send message", flush=True)
+                                                        _ = send_message(sender_phone, msg)
+                                                        return JsonResponse({'status': 'ok'})
+                                                    using_trial = True
                                             except Exception as dbg_e:
                                                 print("[whatsapp_webhook] debug check failed:", dbg_e, flush=True)
                                             
@@ -518,25 +540,18 @@ def whatsapp_webhook(request):
                                                     "• Contact support if you need assistance"
                                                 )
                                                 print(f"❌ Verification failed: {error_msg}")
-                                                if not resolved_user:
-                                                    # User not found, respond with registration message
-                                                    registration_url = getattr(settings, 'SITE_URL', 'https://tourske.com').rstrip('/') + '/register/'
-                                                    response_message = (
-                                                        "🔒 *Account Required*\n\n"
-                                                        "You need to register an account to use our verification service.\n\n"
-                                                        "📱 *How to get started:*\n"
-                                                        "1. Visit our website: https://tourske.com\n"
-                                                        "2. Create your free account\n"
-                                                        "3. Start verifying IDs instantly!\n\n"
-                                                        "💡 *Why register?*\n"
-                                                        "• Verify clients securely\n"
-                                                        "• Get free trial for testing\n"
-                                                        "• Track your verification history\n"
-                                                        "• Get instant results\n\n"
-                                                        f"👉 Register here: {registration_url}"
-                                                    )
-                                                    send_message(sender_phone, response_message)
-                                                    return JsonResponse({'status': 'ok'})
+                                                response_message = (
+                                                    "❌ *Verification Failed*\n\n"
+                                                    f"We couldn't verify the provided ID: {id_number}\n\n"
+                                                    f"*Reason:* {error_msg}\n\n"
+                                                    "⚠️ *Next Steps:*\n"
+                                                    "1. Double-check the ID number for any typos\n"
+                                                    "2. If the ID is correct but verification fails, the person may be using invalid credentials\n\n"
+                                                    "*For your safety, we recommend:*\n"
+                                                    "• Do not proceed with any transactions\n"
+                                                    "• Report this incident at: https://tourske.com/incidents/create/step1/\n"
+                                                    "• Contact support if you need assistance"
+                                                )
                                         else:
                                             # Create a failed verification request for tracking
                                             VerificationRequest.objects.create(
