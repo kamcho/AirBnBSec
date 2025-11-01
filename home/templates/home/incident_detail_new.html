@@ -476,11 +476,13 @@
                 <i class="fas fa-info-circle"></i>
                 Incident Summary
             </h2>
+            {% if user.is_superuser or user == incident.reported_by %}
             <div class="card-actions">
-                <button class="btn btn-outline">
+                <a href="{% url 'home:incident_update' pk=incident.id %}" class="btn btn-outline">
                     <i class="fas fa-edit"></i> Edit
-                </button>
+                </a>
             </div>
+            {% endif %}
         </div>
         
         <div class="summary-grid">
@@ -552,11 +554,13 @@
                 <i class="fas fa-camera"></i>
                 Evidence
             </h2>
+            {% if user.is_superuser or user == incident.reported_by %}
             <div class="card-actions">
                 <a href="{% url 'home:add_evidence' incident_id=incident.id %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add Evidence
                 </a>
             </div>
+            {% endif %}
         </div>
         
         <div class="evidence-grid">
@@ -601,9 +605,11 @@
                 <div class="no-evidence">
                     <i class="fas fa-inbox"></i>
                     <p>No evidence has been uploaded for this incident yet.</p>
+                    {% if user.is_superuser or user == incident.reported_by %}
                     <a href="{% url 'home:add_evidence' incident_id=incident.id %}" class="btn btn-primary mt-2">
                         <i class="fas fa-plus"></i> Add Your First Evidence
                     </a>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
@@ -616,11 +622,13 @@
                 <i class="fas fa-user-shield"></i>
                 Client/Offender Information
             </h2>
+            {% if user.is_superuser or user == incident.reported_by %}
             <div class="card-actions">{% if not incident.client %}
                 <a href="{% url 'home:add_offender' pk=incident.id %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add Client/Offender
                 </a>{% endif %}
             </div>
+            {% endif %}
         </div>
         
         <div class="offender-list">

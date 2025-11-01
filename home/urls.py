@@ -41,6 +41,7 @@ urlpatterns = [
         path('test/', test_view),
     # Offender management URLs
     path('incidents/<int:pk>/add-offender/', views.AddOffenderView.as_view(), name='add_offender'),
+    path('incidents/<int:incident_id>/add-client-info/', views.add_client_info, name='add_client_info'),
     
     # Video management URLs
     path('incidents/<int:incident_id>/upload-video/', views.upload_explainer_video, name='upload_video'),
